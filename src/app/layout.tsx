@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import ThemeColorClient from "./components/ThemeColorClient";
 
 const satoshi = localFont({
   src: [
@@ -29,6 +30,12 @@ export const metadata: Metadata = {
   description: "A workout tracker app built for Gymrats by Gymrats.",
 };
 
+export function getViewport(): Viewport {
+  return {
+    viewportFit: "contain",
+  };
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -36,9 +43,34 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(() => {
+            try {
+              var theme = '#111111';
+              if (typeof localStorage !== 'undefined') {
+                var o = localStorage.getItem('overrideThemeColor');
+                if (o && o.trim() !== '') theme = o;
+              }
+              var meta = document.querySelector("meta[name=theme-color]");
+              if (!meta) { meta = document.createElement('meta'); meta.name = 'theme-color'; document.head.appendChild(meta); }
+              meta.content = theme;
+              var vp = document.querySelector("meta[name=viewport]");
+              if (!vp) { vp = document.createElement('meta'); vp.name = 'viewport'; document.head.appendChild(vp); }
+              var cur = vp.content || 'width=device-width,initial-scale=1';
+              cur = cur.split(',').map(function(p){return p.trim();}).filter(function(p){return p && p.indexOf('viewport-fit')!==0;}).join(', ');
+              vp.content = (cur ? cur + ', ' : '') + 'viewport-fit=contain';
+            } catch (e) { /* ignore */ }
+          })();`,
+          }}
+        />
+      </head>
       <body
         className={`${satoshi.variable} bg-bg-primary text-fg-primary min-h-screen`}
       >
+        {/* Client component keeps meta tags updated after hydration */}
+        <ThemeColorClient />
         {children}
       </body>
     </html>

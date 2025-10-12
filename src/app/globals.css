@@ -2,18 +2,22 @@
 
 @theme {
   --color-primary: #1e8ad7;
+  --color-primary-dark: #3a404b;
   --color-fg-primary: #e0e0e0;
   --color-fg-secondary: #898989;
   --color-fg-tertiary: #323232;
   --color-bg-primary: #111111;
   --color-bg-secondary: #202020;
   --color-bg-main: #060606;
+
+  --mobile-menu-height: calc(var(--spacing) * 24);
+  --mobile-player-height: calc(var(--spacing) * 16);
 }
 
 @utility bg-* {
   background-color: color-mix(
     in srgb,
-    --value(--color-*, color, [color]) calc(--modifier(integer) * 1%),
+    --value(--color- *, color, [color]) calc(--modifier(integer) * 1%),
     transparent
   );
 }
@@ -21,9 +25,13 @@
 @utility text-* {
   color: color-mix(
     in srgb,
-    --value(--color-*, color, [color]) calc(--modifier(integer) * 1%),
+    --value(--color- *, color, [color]) calc(--modifier(integer) * 1%),
     transparent
   );
+}
+
+@utility no-scrollbar {
+  @apply [scrollbar-width:none] [&::-webkit-scrollbar]:hidden;
 }
 
 h1,
