@@ -16,16 +16,18 @@ import {
   UserStrokeStandard,
 } from "@hugeicons-pro/core-stroke-standard";
 
-interface MobileMenuProps {
+export interface MobileMenuProps {
   active: "home" | "discover" | "search" | "library" | "profile";
 }
 
 function MobileMenu({ active }: MobileMenuProps) {
   return (
-    <div className="w-full h-[var(--mobile-menu-height)] bg-linear-to-b from-bg-primary/85 to-45% to-bg-primary fixed bottom-0 left-0 flex flex-row justify-between items-center px-4 z-40">
+    <div className="w-full h-[var(--mobile-menu-height)] bg-linear-to-b from-bg-primary/85 to-45% to-bg-primary fixed bottom-0 left-0 flex flex-row justify-between items-start pt-5 px-4 z-40">
       <Link
         href="/"
-        className="flex-1 text-center flex flex-col justify-center items-center gap-1.5 text-fg-secondary"
+        className={`flex-1 text-center flex flex-col justify-center items-center gap-1.5 ${
+          active === "home" ? "text-fg-primary" : "text-fg-secondary"
+        }`}
       >
         <HugeiconsIcon
           icon={active === "home" ? Home03SolidStandard : Home03StrokeStandard}
@@ -35,7 +37,9 @@ function MobileMenu({ active }: MobileMenuProps) {
       </Link>
       <Link
         href="/discover"
-        className="flex-1 text-center flex flex-col justify-center items-center gap-1.5 text-fg-secondary"
+        className={`flex-1 text-center flex flex-col justify-center items-center gap-1.5 ${
+          active === "discover" ? "text-fg-primary" : "text-fg-secondary"
+        }`}
       >
         <HugeiconsIcon
           icon={
@@ -49,7 +53,9 @@ function MobileMenu({ active }: MobileMenuProps) {
       </Link>
       <Link
         href="/search"
-        className="flex-1 text-center flex flex-col justify-center items-center gap-1.5 text-fg-secondary"
+        className={`flex-1 text-center flex flex-col justify-center items-center gap-1.5 ${
+          active === "search" ? "text-fg-primary" : "text-fg-secondary"
+        }`}
       >
         <HugeiconsIcon
           icon={
@@ -61,7 +67,9 @@ function MobileMenu({ active }: MobileMenuProps) {
       </Link>
       <Link
         href="/library"
-        className="flex-1 text-center flex flex-col justify-center items-center gap-1.5 text-fg-secondary"
+        className={`flex-1 text-center flex flex-col justify-center items-center gap-1.5 ${
+          active === "library" ? "text-fg-primary" : "text-fg-secondary"
+        }`}
       >
         <HugeiconsIcon
           icon={
@@ -75,7 +83,9 @@ function MobileMenu({ active }: MobileMenuProps) {
       </Link>
       <Link
         href="/profile"
-        className="flex-1 text-center flex flex-col justify-center items-center gap-1.5 text-fg-secondary"
+        className={`flex-1 text-center flex flex-col justify-center items-center gap-1.5 ${
+          active === "profile" ? "text-fg-primary" : "text-fg-secondary"
+        }`}
       >
         <HugeiconsIcon
           icon={active === "profile" ? UserSolidStandard : UserStrokeStandard}

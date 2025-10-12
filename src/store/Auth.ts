@@ -5,10 +5,20 @@ import { persist } from "zustand/middleware";
 import { AppwriteException, ID, Models } from "appwrite";
 import { account } from "@/models/client/config";
 
+export type RepraTier =
+  | "rookie"
+  | "novice"
+  | "intermediate"
+  | "advanced"
+  | "expert"
+  | "elite"
+  | "master";
+
 export interface UserPrefs {
   pfpUrl: string | null;
   weightUnit: "kg" | "lbs";
   primaryLocation: string | null;
+  repraTier: RepraTier;
 }
 
 interface IAuthStore {

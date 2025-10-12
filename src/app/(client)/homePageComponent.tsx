@@ -8,8 +8,9 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { formatSecondsToFullTime } from "@/lib/formatSecondsToFullTime";
 import { ArrowRight02SolidRounded } from "@hugeicons-pro/core-solid-rounded";
+import LargeCard from "@/components/largeCard";
 
-function HomePage() {
+function HomePageComponent() {
   const [urlHash, setUrlHash] = useState("");
 
   useEffect(() => {
@@ -36,7 +37,7 @@ function HomePage() {
               urlHash === "#workouts-section" || urlHash === ""
                 ? "bg-primary"
                 : "bg-bg-secondary"
-            } rounded-lg px-4 py-2`}
+            } rounded-xl px-4 py-2`}
           >
             Workouts
           </a>
@@ -44,7 +45,7 @@ function HomePage() {
             href="#friends-section"
             className={`w-fit h-full flex justify-center items-center text-sm text-fg-primary ${
               urlHash === "#friends-section" ? "bg-primary" : "bg-bg-secondary"
-            } rounded-lg px-4 py-2`}
+            } rounded-xl px-4 py-2`}
           >
             Friends
           </a>
@@ -52,7 +53,7 @@ function HomePage() {
             href="#progress-section"
             className={`w-fit h-full flex justify-center items-center text-sm text-fg-primary ${
               urlHash === "#progress-section" ? "bg-primary" : "bg-bg-secondary"
-            } rounded-lg px-4 py-2`}
+            } rounded-xl px-4 py-2`}
           >
             Progress
           </a>
@@ -71,12 +72,12 @@ function HomePage() {
         className="w-full h-fit flex flex-col gap-8"
       >
         <div className="w-full h-fit grid grid-cols-2 grid-rows-3 gap-3">
-          <button className="w-full h-15 bg-bg-secondary rounded-xl p-2 flex justify-center items-center gap-2">
-            <div className="h-full aspect-square relative rounded-xs">
+          <button className="w-full h-15 bg-bg-secondary rounded-2xl p-2 flex justify-center items-center gap-2">
+            <div className="h-full aspect-square relative rounded-sm">
               <Image
                 src="/images/fallback.webp"
                 alt="Workout Image"
-                className="rounded-xs"
+                className="rounded-sm"
                 fill
               />
             </div>
@@ -85,12 +86,12 @@ function HomePage() {
               <span className="text-fg-secondary">5 exercises</span>
             </div>
           </button>
-          <button className="w-full h-15 bg-bg-secondary rounded-xl p-2 flex justify-center items-center gap-2">
-            <div className="h-full aspect-square relative rounded-xs">
+          <button className="w-full h-15 bg-bg-secondary rounded-2xl p-2 flex justify-center items-center gap-2">
+            <div className="h-full aspect-square relative rounded-sm">
               <Image
                 src="/images/fallback.webp"
                 alt="Workout Image"
-                className="rounded-xs"
+                className="rounded-sm"
                 fill
               />
             </div>
@@ -99,12 +100,12 @@ function HomePage() {
               <span className="text-fg-secondary">6 exercises</span>
             </div>
           </button>
-          <button className="w-full h-15 bg-bg-secondary rounded-xl p-2 flex justify-center items-center gap-2">
-            <div className="h-full aspect-square relative rounded-xs">
+          <button className="w-full h-15 bg-bg-secondary rounded-2xl p-2 flex justify-center items-center gap-2">
+            <div className="h-full aspect-square relative rounded-sm">
               <Image
                 src="/images/fallback.webp"
                 alt="Workout Image"
-                className="rounded-xs"
+                className="rounded-sm"
                 fill
               />
             </div>
@@ -113,12 +114,12 @@ function HomePage() {
               <span className="text-fg-secondary">5 exercises</span>
             </div>
           </button>
-          <button className="w-full h-15 bg-bg-secondary rounded-xl p-2 flex justify-center items-center gap-2">
-            <div className="h-full aspect-square relative rounded-xs">
+          <button className="w-full h-15 bg-bg-secondary rounded-2xl p-2 flex justify-center items-center gap-2">
+            <div className="h-full aspect-square relative rounded-sm">
               <Image
                 src="/images/fallback.webp"
                 alt="Workout Image"
-                className="rounded-xs"
+                className="rounded-sm"
                 fill
               />
             </div>
@@ -127,12 +128,12 @@ function HomePage() {
               <span className="text-fg-secondary">6 exercises</span>
             </div>
           </button>
-          <button className="w-full h-15 bg-bg-secondary rounded-xl p-2 flex justify-center items-center gap-2">
-            <div className="h-full aspect-square relative rounded-xs">
+          <button className="w-full h-15 bg-bg-secondary rounded-2xl p-2 flex justify-center items-center gap-2">
+            <div className="h-full aspect-square relative rounded-sm">
               <Image
                 src="/images/fallback.webp"
                 alt="Workout Image"
-                className="rounded-xs"
+                className="rounded-sm"
                 fill
               />
             </div>
@@ -151,7 +152,7 @@ function HomePage() {
           <div className="w-full h-fit flex-nowrap overflow-x-scroll overflow-y-hidden flex flex-row gap-2 justify-start items-center no-scrollbar">
             <Link
               href="/workout/1"
-              className="w-40 h-14 flex-shrink-0 flex flex-row gap-2 px-2 py-1.5 bg-bg-secondary rounded-xl"
+              className="w-40 h-14 flex-shrink-0 flex flex-row gap-2 px-2 py-1.5 bg-bg-secondary rounded-2xl"
             >
               <div className="h-full aspect-square flex justify-center items-center text-center text-fg-primary text-sm">
                 <span>{format(new Date(), "dd. MMM")}</span>
@@ -165,7 +166,7 @@ function HomePage() {
             </Link>
             <Link
               href="/workout/2"
-              className="w-40 h-14 flex-shrink-0 flex flex-row gap-2 px-2 py-1.5 bg-bg-secondary rounded-xl"
+              className="w-40 h-14 flex-shrink-0 flex flex-row gap-2 px-2 py-1.5 bg-bg-secondary rounded-2xl"
             >
               <div className="h-full aspect-square flex justify-center items-center text-center text-fg-primary text-sm">
                 <span>{format(new Date(), "dd. MMM")}</span>
@@ -179,7 +180,7 @@ function HomePage() {
             </Link>
             <Link
               href="/workout/3"
-              className="w-40 h-14 flex-shrink-0 flex flex-row gap-2 px-2 py-1.5 bg-bg-secondary rounded-xl"
+              className="w-40 h-14 flex-shrink-0 flex flex-row gap-2 px-2 py-1.5 bg-bg-secondary rounded-2xl"
             >
               <div className="h-full aspect-square flex justify-center items-center text-center text-fg-primary text-sm">
                 <span>{format(new Date(), "dd. MMM")}</span>
@@ -193,7 +194,7 @@ function HomePage() {
             </Link>
             <Link
               href="/workout/4"
-              className="w-40 h-14 flex-shrink-0 flex flex-row gap-2 px-2 py-1.5 bg-bg-secondary rounded-xl"
+              className="w-40 h-14 flex-shrink-0 flex flex-row gap-2 px-2 py-1.5 bg-bg-secondary rounded-2xl"
             >
               <div className="h-full aspect-square flex justify-center items-center text-center text-fg-primary text-sm">
                 <span>{format(new Date(), "dd. MMM")}</span>
@@ -207,7 +208,7 @@ function HomePage() {
             </Link>
             <Link
               href="/workout/5"
-              className="w-40 h-14 flex-shrink-0 flex flex-row gap-2 px-2 py-1.5 bg-bg-secondary rounded-xl"
+              className="w-40 h-14 flex-shrink-0 flex flex-row gap-2 px-2 py-1.5 bg-bg-secondary rounded-2xl"
             >
               <div className="h-full aspect-square flex justify-center items-center text-center text-fg-primary text-sm">
                 <span>{format(new Date(), "dd. MMM")}</span>
@@ -228,91 +229,48 @@ function HomePage() {
             </h2>
           </div>
           <div className="w-full h-fit flex-nowrap overflow-x-scroll overflow-y-hidden flex flex-row gap-2 justify-start items-center no-scrollbar">
-            <Link
+            <LargeCard
+              href="/plan/0"
+              imageAlt="Workout Image"
+              imageSrc="/images/fallback.webp"
+              title="Full Body Advanced"
+              subtitle="7 exercises"
+            />
+            <LargeCard
               href="/plan/1"
-              className="w-40 h-fit flex-shrink-0 flex flex-col gap-0.5"
-            >
-              <div className="w-full aspect-square relative rounded-xl">
-                <Image
-                  src="/images/fallback.webp"
-                  alt="Workout Image"
-                  className="rounded-xl"
-                  fill
-                />
-              </div>
-              <div className="w-full h-fit flex flex-col justify-center items-start text-sm">
-                <span className="text-fg-primary">Full Body Beginner</span>
-                <span className="text-fg-secondary text-xs">5 exercises</span>
-              </div>
-            </Link>
-            <Link
+              imageAlt="Workout Image"
+              imageSrc="/images/fallback.webp"
+              title="Full Body Beginner"
+              subtitle="5 exercises"
+            />
+            <LargeCard
               href="/plan/2"
-              className="w-40 h-fit flex-shrink-0 flex flex-col gap-0.5"
-            >
-              <div className="w-full aspect-square relative rounded-xl">
-                <Image
-                  src="/images/fallback.webp"
-                  alt="Workout Image"
-                  className="rounded-xl"
-                  fill
-                />
-              </div>
-              <div className="w-full h-fit flex flex-col justify-center items-start text-sm">
-                <span className="text-fg-primary">Push Pull Legs</span>
-                <span className="text-fg-secondary text-xs">6 exercises</span>
-              </div>
-            </Link>
-            <Link
+              imageAlt="Workout Image"
+              imageSrc="/images/fallback.webp"
+              title="Push Pull Legs"
+              subtitle="6 exercises"
+            />
+            <LargeCard
               href="/plan/3"
-              className="w-40 h-fit flex-shrink-0 flex flex-col gap-0.5"
-            >
-              <div className="w-full aspect-square relative rounded-xl">
-                <Image
-                  src="/images/fallback.webp"
-                  alt="Workout Image"
-                  className="rounded-xl"
-                  fill
-                />
-              </div>
-              <div className="w-full h-fit flex flex-col justify-center items-start text-sm">
-                <span className="text-fg-primary">Upper Lower Split</span>
-                <span className="text-fg-secondary text-xs">5 exercises</span>
-              </div>
-            </Link>
-            <Link
+              imageAlt="Workout Image"
+              imageSrc="/images/fallback.webp"
+              title="Upper Lower Split"
+              subtitle="5 exercises"
+            />
+            <LargeCard
               href="/plan/4"
-              className="w-40 h-fit flex-shrink-0 flex flex-col gap-0.5"
-            >
-              <div className="w-full aspect-square relative rounded-xl">
-                <Image
-                  src="/images/fallback.webp"
-                  alt="Workout Image"
-                  className="rounded-xl"
-                  fill
-                />
-              </div>
-              <div className="w-full h-fit flex flex-col justify-center items-start text-sm">
-                <span className="text-fg-primary">Strength Training</span>
-                <span className="text-fg-secondary text-xs">6 exercises</span>
-              </div>
-            </Link>
-            <Link
+              imageAlt="Workout Image"
+              imageSrc="/images/fallback.webp"
+              title="Strength Training"
+              subtitle="6 exercises"
+            />
+            <LargeCard
               href="/plan/5"
-              className="w-40 h-fit flex-shrink-0 flex flex-col gap-0.5"
-            >
-              <div className="w-full aspect-square relative rounded-xl">
-                <Image
-                  src="/images/fallback.webp"
-                  alt="Workout Image"
-                  className="rounded-xl"
-                  fill
-                />
-              </div>
-              <div className="w-full h-fit flex flex-col justify-center items-start text-sm">
-                <span className="text-fg-primary">Core Focus</span>
-                <span className="text-fg-secondary text-xs">5 exercises</span>
-              </div>
-            </Link>
+              imageAlt="Workout Image"
+              imageSrc="/images/fallback.webp"
+              title="Core Focus"
+              subtitle="5 exercises"
+            />
           </div>
         </div>
       </section>
@@ -388,4 +346,4 @@ function HomePage() {
   );
 }
 
-export default HomePage;
+export default HomePageComponent;

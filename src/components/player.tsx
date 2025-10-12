@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Stopwatch from "./stopwatch";
 import { HugeiconsIcon } from "@hugeicons/react";

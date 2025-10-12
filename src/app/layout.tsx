@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import ThemeColorClient from "./components/ThemeColorClient";
 import { Analytics } from "@vercel/analytics/next";
 
 const satoshi = localFont({
@@ -64,12 +63,12 @@ export default function RootLayout({
           })();`,
           }}
         />
+        <link rel="icon" href="/icons/favicon.ico" sizes="48x48" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
       <body
         className={`${satoshi.variable} bg-bg-primary text-fg-primary min-h-screen`}
       >
-        {/* Client component keeps meta tags updated after hydration */}
-        <ThemeColorClient />
         {children}
         <Analytics />
       </body>

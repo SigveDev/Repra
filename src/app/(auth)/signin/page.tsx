@@ -40,7 +40,9 @@ export default function SignInPage() {
 
     const response = await login(email.toString(), password.toString());
     if (response.error) {
-      setError(() => response.error!.message);
+      setError(
+        () => response.error!.message || "An error occurred, please try again."
+      );
     }
 
     setIsLoading(() => false);

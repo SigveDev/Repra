@@ -2,13 +2,13 @@
 
 import { useAuthStore } from "@/store/Auth";
 import { useRouter } from "next/navigation";
-import React from "react";
+import { ReactNode, useEffect } from "react";
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
+const Layout = ({ children }: { children: ReactNode }) => {
   const { session } = useAuthStore();
   const router = useRouter();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (session) {
       router.push("/");
     }
