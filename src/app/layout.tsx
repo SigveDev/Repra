@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import ThemeColorClient from "./components/ThemeColorClient";
+import { Analytics } from "@vercel/analytics/next";
 
 const satoshi = localFont({
   src: [
@@ -70,6 +71,7 @@ export default function RootLayout({
         {/* Client component keeps meta tags updated after hydration */}
         <ThemeColorClient />
         {children}
+        <Analytics />
       </body>
     </html>
   );
