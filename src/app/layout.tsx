@@ -30,11 +30,9 @@ export const metadata: Metadata = {
   description: "A workout tracker app built for Gymrats by Gymrats.",
 };
 
-export function getViewport(): Viewport {
-  return {
-    viewportFit: "contain",
-  };
-}
+export const viewport: Viewport = {
+  viewportFit: "contain",
+};
 
 export default function RootLayout({
   children,
