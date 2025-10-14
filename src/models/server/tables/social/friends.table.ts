@@ -13,6 +13,7 @@ export default async function createFriendsTable() {
       Permission.update("users"),
       Permission.delete("users"),
     ],
+    rowSecurity: true,
   });
   console.log(`Created table: ${friendsTable}`);
 

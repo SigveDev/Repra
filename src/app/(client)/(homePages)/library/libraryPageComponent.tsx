@@ -19,7 +19,15 @@ import { useState } from "react";
 function LibraryPageComponent() {
   const [tempQuery, setTempQuery] = useState("");
   const [query, setQuery] = useState("");
-  const [listType, setListType] = useState<"grid" | "list">("grid");
+  const [listType, setListType] = useState<"grid" | "list">(
+    localStorage.getItem("libraryListType") === "list" ? "list" : "grid"
+  );
+
+  const handleListTypeChange = (type: "grid" | "list") => {
+    localStorage.setItem("libraryListType", type);
+    setListType(type);
+  };
+
   return (
     <div className="p-4 min-h-screen h-fit w-full flex flex-col gap-5">
       <div className="w-full h-fit flex flex-row gap-3">
@@ -62,7 +70,7 @@ function LibraryPageComponent() {
             {listType === "grid" ? (
               <button
                 className="w-fit h-8 flex justify-center items-center gap-2 text-base text-fg-secondary/70"
-                onClick={() => setListType("list")}
+                onClick={() => handleListTypeChange("list")}
               >
                 <HugeiconsIcon
                   icon={ListViewStrokeStandard}
@@ -73,7 +81,7 @@ function LibraryPageComponent() {
             ) : (
               <button
                 className="w-fit h-8 flex justify-center items-center gap-2 text-base text-fg-secondary/70"
-                onClick={() => setListType("grid")}
+                onClick={() => handleListTypeChange("grid")}
               >
                 <HugeiconsIcon
                   icon={GridViewStrokeStandard}

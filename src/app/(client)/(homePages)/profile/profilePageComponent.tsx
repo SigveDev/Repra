@@ -1,5 +1,6 @@
 "use client";
 
+import ListCard from "@/components/listCard";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/Auth";
 import {
@@ -8,6 +9,7 @@ import {
   Clock02StrokeStandard,
   Notification01StrokeStandard,
   Settings01StrokeStandard,
+  UserAdd01StrokeStandard,
 } from "@hugeicons-pro/core-stroke-standard";
 import { HugeiconsIcon } from "@hugeicons/react";
 import Image from "next/image";
@@ -58,9 +60,12 @@ function ProfilePageComponent() {
             />
           </div>
           <div className="h-full grow flex flex-col justify-around items-start">
-            <h1 className="text-xl font-semibold text-fg-primary">
-              {user?.name}
-            </h1>
+            <div className="w-fit h-fit flex flex-col">
+              <h1 className="text-xl font-semibold text-fg-primary">
+                {user?.name}
+              </h1>
+              <span className="text-fg-secondary text-xs">@{user?.$id}</span>
+            </div>
             <div className="w-fit h-fit flex justify-center items-center flex-row gap-2 text-xs text-fg-secondary">
               <span>
                 <span className="text-fg-primary">100</span> Followers
@@ -71,12 +76,10 @@ function ProfilePageComponent() {
               </span>
             </div>
             <div
-              className={cn(
-                "w-fit h-fit flex flex-row gap-2",
-                `text-[${
-                  memberStatusColors[user?.prefs?.repraTier || "rookie"]
-                }]`
-              )}
+              className="w-fit h-fit flex flex-row gap-2"
+              style={{
+                color: memberStatusColors[user?.prefs?.repraTier || "rookie"],
+              }}
             >
               <HugeiconsIcon
                 icon={ChampionStrokeStandard}
@@ -92,8 +95,83 @@ function ProfilePageComponent() {
           </div>
         </div>
       </div>
-      <div className="w-full h-48 flex flex-col gap-2 px-4 py-2 rounded-xl border-2 border-[rgba(255,255,255,0.1)]">
-        <h2 className="text-base font-semibold text-fg-primary">Friends</h2>
+      <div className="w-full h-48 flex flex-col gap-3 px-4 py-2 rounded-xl border-2 border-[rgba(255,255,255,0.1)] relative">
+        <div className="w-full h-fit flex flex-row justify-between items-center">
+          <Link
+            href="/friends"
+            className="text-base font-semibold text-fg-primary flex flex-row justify-center items-center gap-1"
+          >
+            Friends
+            <HugeiconsIcon
+              icon={ArrowRight01StrokeStandard}
+              className="w-4 h-4 ml-0.1"
+            />
+          </Link>
+        </div>
+        <div className="w-full h-full overflow-y-auto overflow-x-hidden grid grid-cols-2 gap-y-2.5 gap-x-4 no-scrollbar">
+          <ListCard
+            imageSrc="/images/fallback.webp"
+            imageAlt="Friend 1"
+            style="profile"
+            href="/user/friend1"
+            title="Friend 1"
+            subtitle="In gym"
+            state="active"
+            className="h-12"
+          />
+          <ListCard
+            imageSrc="/images/fallback.webp"
+            imageAlt="Friend 2"
+            style="profile"
+            href="/user/friend2"
+            title="Friend 2"
+            subtitle="In gym"
+            className="h-12"
+          />
+          <ListCard
+            imageSrc="/images/fallback.webp"
+            imageAlt="Friend 3"
+            style="profile"
+            href="/user/friend3"
+            title="Friend 3"
+            subtitle="In gym"
+            className="h-12"
+          />
+          <ListCard
+            imageSrc="/images/fallback.webp"
+            imageAlt="Friend 4"
+            style="profile"
+            href="/user/friend4"
+            title="Friend 4"
+            subtitle="In gym"
+            className="h-12"
+          />
+          <ListCard
+            imageSrc="/images/fallback.webp"
+            imageAlt="Friend 5"
+            style="profile"
+            href="/user/friend5"
+            title="Friend 5"
+            subtitle="In gym"
+            className="h-12"
+          />
+          <ListCard
+            imageSrc="/images/fallback.webp"
+            imageAlt="Friend 6"
+            style="profile"
+            href="/user/friend6"
+            title="Friend 6"
+            subtitle="Away"
+            state="disabled"
+            className="h-12"
+          />
+        </div>
+        <Link
+          href="/add-friend"
+          className="w-fit h-fit absolute top-2 right-4 text-fg-secondary"
+        >
+          <HugeiconsIcon icon={UserAdd01StrokeStandard} />
+        </Link>
       </div>
       <section className="w-full h-fit flex flex-col gap-3">
         <Link
@@ -145,17 +223,17 @@ function ProfilePageComponent() {
           />
         </Link>
       </section>
-      <section className="w-full h-fit flex flex-col gap-3 mt-auto">
+      <section className="w-full h-fit flex flex-col gap-3">
         {!signoutConfirm ? (
           <button
-            className="w-full h-12 bg-bg-secondary transition-colors rounded-lg text-fg-primary font-semibold"
+            className="w-full h-12 border-2 border-bg-secondary transition-colors rounded-lg text-fg-primary font-semibold"
             onClick={() => setSignoutConfirm(true)}
           >
             Sign Out
           </button>
         ) : (
           <button
-            className="w-full h-12 bg-red-700/15 transition-colors rounded-lg text-fg-primary font-semibold"
+            className="w-full h-12 bg-bg-secondary transition-colors rounded-lg text-fg-primary font-semibold"
             onClick={() => logout()}
           >
             Confirm Sign Out

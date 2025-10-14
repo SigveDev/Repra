@@ -19,6 +19,7 @@ export default async function getOrCreateStorage() {
           Permission.update("users"),
           Permission.delete("users"),
         ],
+        fileSecurity: true,
         allowedFileExtensions: ["jpg", "png", "gif", "jpeg", "webp", "heic"],
       });
 

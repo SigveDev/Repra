@@ -13,6 +13,7 @@ export default async function createExercisesTable() {
       Permission.update("users"),
       Permission.delete("users"),
     ],
+    rowSecurity: true,
   });
   console.log(`Created table: ${exerciseTable}`);
 

@@ -1,24 +1,24 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
-import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import "./globals.css";
 
 const satoshi = localFont({
   src: [
     {
       path: "../../public/fonts/Satoshi-Regular.woff2",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../../public/fonts/Satoshi-Semibold.woff2",
       weight: "600",
       style: "normal",
     },
     {
+      path: "../../public/fonts/Satoshi-Semibold.woff2",
+      weight: "750",
+      style: "semi-bold",
+    },
+    {
       path: "../..//public/fonts/Satoshi-Bold.woff2",
-      weight: "700",
-      style: "normal",
+      weight: "900",
+      style: "bold",
     },
   ],
   variable: "--font-satoshi",
@@ -30,8 +30,12 @@ export const metadata: Metadata = {
   description: "A workout tracker app built for Gymrats by Gymrats.",
 };
 
-export const viewport: Viewport = {
-  viewportFit: "contain",
+export const generateViewport = (): Viewport => {
+  const currentThemeColor = "#111111";
+  return {
+    themeColor: currentThemeColor,
+    viewportFit: "contain",
+  };
 };
 
 export default function RootLayout({
@@ -42,27 +46,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(() => {
-            try {
-              var theme = '#111111';
-              if (typeof localStorage !== 'undefined') {
-                var o = localStorage.getItem('overrideThemeColor');
-                if (o && o.trim() !== '') theme = o;
-              }
-              var meta = document.querySelector("meta[name=theme-color]");
-              if (!meta) { meta = document.createElement('meta'); meta.name = 'theme-color'; document.head.appendChild(meta); }
-              meta.content = theme;
-              var vp = document.querySelector("meta[name=viewport]");
-              if (!vp) { vp = document.createElement('meta'); vp.name = 'viewport'; document.head.appendChild(vp); }
-              var cur = vp.content || 'width=device-width,initial-scale=1';
-              cur = cur.split(',').map(function(p){return p.trim();}).filter(function(p){return p && p.indexOf('viewport-fit')!==0;}).join(', ');
-              vp.content = (cur ? cur + ', ' : '') + 'viewport-fit=contain';
-            } catch (e) { /* ignore */ }
-          })();`,
-          }}
-        />
         <link rel="icon" href="/icons/favicon.ico" sizes="48x48" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>

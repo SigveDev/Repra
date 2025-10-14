@@ -1,14 +1,16 @@
 "use client";
 
 import { HugeiconsIcon } from "@hugeicons/react";
-import { CustomizeStrokeRounded } from "@hugeicons-pro/core-stroke-rounded";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { formatSecondsToFullTime } from "@/lib/formatSecondsToFullTime";
-import { ArrowRight02SolidRounded } from "@hugeicons-pro/core-solid-rounded";
 import LargeCard from "@/components/largeCard";
+import {
+  ArrowRight01StrokeStandard,
+  Notification01StrokeStandard,
+} from "@hugeicons-pro/core-stroke-standard";
 
 function HomePageComponent() {
   const [urlHash, setUrlHash] = useState("");
@@ -61,7 +63,7 @@ function HomePageComponent() {
         <div className="w-fit h-10 flex justify-center items-center">
           <button className="w-10 h-10 flex justify-end items-center">
             <HugeiconsIcon
-              icon={CustomizeStrokeRounded}
+              icon={Notification01StrokeStandard}
               className="w-7 h-7 text-fg-secondary"
             />
           </button>
@@ -323,8 +325,8 @@ function HomePageComponent() {
           >
             Progress
             <HugeiconsIcon
-              icon={ArrowRight02SolidRounded}
-              className="w-5 h-5 ml-1"
+              icon={ArrowRight01StrokeStandard}
+              className="w-5 h-5 ml-0.1"
             />
           </Link>
         </div>

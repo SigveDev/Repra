@@ -19,6 +19,10 @@ export interface UserPrefs {
   weightUnit: "kg" | "lbs";
   primaryLocation: string | null;
   repraTier: RepraTier;
+  publicProfile: boolean;
+  publicHistory: boolean;
+  publicLibrary: boolean;
+  publicProgress: boolean;
 }
 
 interface IAuthStore {
@@ -37,6 +41,7 @@ interface IAuthStore {
     error?: AppwriteException | null;
   }>;
   createAccount(
+    username: string,
     name: string,
     email: string,
     password: string
@@ -84,9 +89,23 @@ export const useAuthStore = create<IAuthStore>()(
           if (!user.prefs?.pfpUrl) updatedPrefs.pfpUrl = null;
           if (!user.prefs?.weightUnit) updatedPrefs.weightUnit = "kg";
           if (!user.prefs?.primaryLocation) updatedPrefs.primaryLocation = null;
+          if (!user.prefs?.repraTier) updatedPrefs.repraTier = "rookie";
+          if (user.prefs?.publicProfile === undefined)
+            updatedPrefs.publicProfile = true;
+          if (user.prefs?.publicHistory === undefined)
+            updatedPrefs.publicHistory = true;
+          if (user.prefs?.publicLibrary === undefined)
+            updatedPrefs.publicLibrary = true;
+          if (user.prefs?.publicProgress === undefined)
+            updatedPrefs.publicProgress = true;
+
+          const allPrefs = { ...user.prefs, ...updatedPrefs };
+
           if (Object.keys(updatedPrefs).length > 0) {
-            await account.updatePrefs<UserPrefs>({ prefs: updatedPrefs });
+            await account.updatePrefs<UserPrefs>({ prefs: allPrefs });
           }
+
+          user.prefs = { ...allPrefs } as UserPrefs;
 
           set({ session, user, jwt });
 
@@ -100,10 +119,15 @@ export const useAuthStore = create<IAuthStore>()(
         }
       },
 
-      async createAccount(name: string, email: string, password: string) {
+      async createAccount(
+        username: string,
+        name: string,
+        email: string,
+        password: string
+      ) {
         try {
           await account.create({
-            userId: ID.unique(),
+            userId: username || ID.unique(),
             email,
             password,
             name,

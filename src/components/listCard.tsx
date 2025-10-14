@@ -9,6 +9,8 @@ type ListCardProps = {
   imageAlt: string;
   title: string;
   subtitle?: string;
+  style?: "default" | "profile";
+  state?: "default" | "active" | "disabled";
   className?: string;
   children?: ReactNode;
 } & AnchorHTMLAttributes<HTMLAnchorElement>;
@@ -21,6 +23,8 @@ const ListCard = forwardRef<HTMLAnchorElement, ListCardProps>(
       imageAlt,
       title,
       subtitle,
+      style = "default",
+      state = "default",
       className,
       children,
       ...props
@@ -40,15 +44,37 @@ const ListCard = forwardRef<HTMLAnchorElement, ListCardProps>(
         <Image
           src={imageSrc}
           alt={imageAlt}
-          className="rounded-sm"
+          className={`${style === "profile" ? "rounded-full" : "rounded-sm"} ${
+            state === "disabled"
+              ? "opacity-50 grayscale"
+              : state === "active"
+              ? "border-2 border-primary"
+              : ""
+          }`}
           fill
           priority
         />
       </div>
       <div className="w-full h-fit flex flex-col justify-center items-start text-sm">
-        <span className="text-fg-primary">{title}</span>
+        <span
+          className={
+            state === "active" || state === "default"
+              ? "text-fg-primary"
+              : "text-fg-secondary"
+          }
+        >
+          {title}
+        </span>
         {subtitle && (
-          <span className="text-fg-secondary text-xs">{subtitle}</span>
+          <span
+            className={`text-xs ${
+              state === "active" || state === "default"
+                ? "text-fg-secondary"
+                : "text-fg-tertiary"
+            }`}
+          >
+            {subtitle}
+          </span>
         )}
         {children}
       </div>

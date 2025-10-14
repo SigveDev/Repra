@@ -7,6 +7,7 @@ import FullPageLoader from "@/components/fullpageLoader";
 import { useAuthStore } from "@/store/Auth";
 import Link from "next/link";
 import { ChangeEvent, useEffect, useState } from "react";
+import axios from "axios";
 
 export default function SignUpPage() {
   const { login, createAccount } = useAuthStore();
@@ -16,6 +17,7 @@ export default function SignUpPage() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -54,9 +56,24 @@ export default function SignUpPage() {
     const formData = new FormData(e.currentTarget);
     const firstName = formData.get("firstName");
     const lastName = formData.get("lastName");
+    const username = formData.get("username");
     const email = formData.get("email");
     const password = formData.get("password");
     const confirmPassword = formData.get("confirmPassword");
+
+    if (!firstName || !lastName || !username || !email || !password) {
+      setError(() => "Please fill out all fields");
+      return;
+    }
+
+    const freeUsername = await axios.get("/api/account/checkUsername", {
+      params: { username: username.toString() },
+    });
+
+    if (!freeUsername.data.available) {
+      setError(() => freeUsername.data.message || "Username is already taken");
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError(() => "Passwords do not match");
@@ -68,15 +85,11 @@ export default function SignUpPage() {
       return;
     }
 
-    if (!firstName || !lastName || !email || !password) {
-      setError(() => "Please fill out all fields");
-      return;
-    }
-
     setIsLoading(() => true);
     setError(() => "");
 
     const response = await createAccount(
+      username.toString(),
       `${firstName} ${lastName}`,
       email.toString(),
       password.toString()
@@ -134,6 +147,18 @@ export default function SignUpPage() {
             />
           </LabelInputContainer>
         </div>
+        <LabelInputContainer>
+          <Label htmlFor="username">Unique username</Label>
+          <Input
+            type="text"
+            id="username"
+            name="username"
+            placeholder="Enter your unique username"
+            value={formData.username}
+            onChange={handleChange}
+            required
+          />
+        </LabelInputContainer>
         <LabelInputContainer>
           <Label htmlFor="email">Email</Label>
           <Input

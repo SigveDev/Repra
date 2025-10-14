@@ -17,33 +17,22 @@ function Player() {
   const y = useMotionValue(0);
 
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-      const primaryDark = getComputedStyle(document.documentElement)
-        .getPropertyValue("--color-primary-dark")
-        .trim();
-      sessionStorage.setItem("overrideThemeColor", primaryDark);
-      try {
-        window.dispatchEvent(
-          new CustomEvent("overrideThemeColorChange", { detail: primaryDark })
-        );
-      } catch {
-        /* ignore */
-      }
-    } else {
-      document.body.style.overflow = "";
-      sessionStorage.removeItem("overrideThemeColor");
-      try {
-        window.dispatchEvent(
-          new CustomEvent("overrideThemeColorChange", { detail: null })
-        );
-      } catch {
-        /* ignore */
-      }
+    const primaryDark = getComputedStyle(document.documentElement)
+      .getPropertyValue("--color-primary-dark")
+      .trim();
+    const defaultBackgroundColor = getComputedStyle(document.documentElement)
+      .getPropertyValue("--color-bg-primary")
+      .trim();
+    let metaThemeColor = document.querySelector("meta[name='theme-color']");
+    if (!metaThemeColor) {
+      metaThemeColor = document.createElement("meta");
+      metaThemeColor.setAttribute("name", "theme-color");
+      document.head.appendChild(metaThemeColor);
     }
-    return () => {
-      document.body.style.overflow = "";
-    };
+    metaThemeColor.setAttribute(
+      "content",
+      open ? primaryDark : defaultBackgroundColor
+    );
   }, [open]);
 
   useEffect(() => {

@@ -13,6 +13,7 @@ export default async function createPlansTable() {
       Permission.update("users"),
       Permission.delete("users"),
     ],
+    rowSecurity: true,
   });
   console.log(`Created table: ${planTable}`);
 
