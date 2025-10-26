@@ -16,24 +16,12 @@
   --total-mobile-bottom-height: calc(var(--spacing) * 46);
 }
 
-@utility bg-* {
-  background-color: color-mix(
-    in srgb,
-    --value(--color- *, color, [color]) calc(--modifier(integer) * 1%),
-    transparent
-  );
+.no-scrollbar {
+  scrollbar-width: none;
 }
 
-@utility text-* {
-  color: color-mix(
-    in srgb,
-    --value(--color- *, color, [color]) calc(--modifier(integer) * 1%),
-    transparent
-  );
-}
-
-@utility no-scrollbar {
-  @apply [scrollbar-width:none] [&::-webkit-scrollbar]:hidden;
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 h1,
