@@ -13,8 +13,13 @@ import {
   ListViewStrokeStandard,
 } from "@hugeicons-pro/core-stroke-standard";
 import { HugeiconsIcon } from "@hugeicons/react";
-import Link from "next/link";
 import { useState } from "react";
+import MobileModal from "@/components/mobileModal";
+import {
+  BodyPartMuscleStrokeRounded,
+  NoteAddStrokeRounded,
+} from "@hugeicons-pro/core-stroke-rounded";
+import Link from "next/link";
 
 function LibraryPageComponent() {
   const [tempQuery, setTempQuery] = useState("");
@@ -57,12 +62,51 @@ function LibraryPageComponent() {
             <HugeiconsIcon icon={Search01SolidRounded} className="w-6 h-6" />
           </button>
         </form>
-        <Link
-          href="/create"
-          className="w-10 h-10 flex justify-end items-center text-fg-secondary"
-        >
-          <HugeiconsIcon icon={Add01SolidRounded} className="w-7 h-7" />
-        </Link>
+        <MobileModal>
+          <MobileModal.Trigger>
+            <button className="w-10 h-10 flex justify-center items-center text-fg-secondary">
+              <HugeiconsIcon icon={Add01SolidRounded} className="w-7 h-7" />
+            </button>
+          </MobileModal.Trigger>
+          <MobileModal.Content>
+            <div className="w-full h-fit flex flex-col gap-4">
+              <Link
+                href="/library/workouts/new"
+                className="w-full h-12 rounded-lg flex justify-start items-center text-fg-primary font-semibold gap-2"
+              >
+                <div className="w-12 h-12 flex justify-center items-center bg-fg-tertiary rounded-full">
+                  <HugeiconsIcon
+                    icon={BodyPartMuscleStrokeRounded}
+                    className="w-6 h-6"
+                  />
+                </div>
+                <div className="h-full grow flex flex-col justify-around items-start">
+                  <h3 className="text-base font-semibold">
+                    Create New Workout
+                  </h3>
+                  <p className="text-sm text-fg-secondary">Create a workout</p>
+                </div>
+              </Link>
+              <Link
+                href="/library/weeks/new"
+                className="w-full h-12 rounded-lg flex justify-start items-center text-fg-primary font-semibold gap-2"
+              >
+                <div className="w-12 h-12 flex justify-center items-center bg-fg-tertiary rounded-full">
+                  <HugeiconsIcon
+                    icon={NoteAddStrokeRounded}
+                    className="w-6 h-6"
+                  />
+                </div>
+                <div className="h-full grow flex flex-col justify-around items-start">
+                  <h3 className="text-base font-semibold">Create New Plan</h3>
+                  <p className="text-sm text-fg-secondary">
+                    Create a workout plan
+                  </p>
+                </div>
+              </Link>
+            </div>
+          </MobileModal.Content>
+        </MobileModal>
       </div>
       {query === "" && (
         <section className="w-full h-fit flex flex-col gap-3">

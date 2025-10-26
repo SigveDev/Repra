@@ -11,8 +11,11 @@ import {
   ArrowRight01StrokeStandard,
   Notification01StrokeStandard,
 } from "@hugeicons-pro/core-stroke-standard";
+import { Plan } from "@/types/plansType";
+import { GetTopPlans } from "@/services/client/plans";
 
 function HomePageComponent() {
+  const [topPlans, setTopPlans] = useState<Plan[]>([]);
   const [urlHash, setUrlHash] = useState("");
 
   useEffect(() => {
@@ -27,6 +30,15 @@ function HomePageComponent() {
     return () => {
       window.removeEventListener("hashchange", handleHashChange);
     };
+  }, []);
+
+  useEffect(() => {
+    const fetchTopPlans = async () => {
+      const plans = await GetTopPlans();
+      setTopPlans(plans);
+    };
+
+    fetchTopPlans();
   }, []);
 
   return (

@@ -2,23 +2,24 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
+import NotificationProvider from "../components/notifications";
 
 const satoshi = localFont({
   src: [
     {
       path: "../../public/fonts/Satoshi-Regular.woff2",
-      weight: "600",
+      weight: "400",
       style: "normal",
     },
     {
       path: "../../public/fonts/Satoshi-Semibold.woff2",
-      weight: "750",
-      style: "semi-bold",
+      weight: "600",
+      style: "normal",
     },
     {
-      path: "../..//public/fonts/Satoshi-Bold.woff2",
-      weight: "900",
-      style: "bold",
+      path: "../../public/fonts/Satoshi-Bold.woff2",
+      weight: "700",
+      style: "normal",
     },
   ],
   variable: "--font-satoshi",
@@ -50,9 +51,9 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
       <body
-        className={`${satoshi.variable} bg-bg-primary text-fg-primary min-h-screen`}
+        className={`${satoshi.variable} bg-bg-primary text-fg-primary min-h-screen font-semibold`}
       >
-        {children}
+        <NotificationProvider>{children}</NotificationProvider>
         <Analytics />
       </body>
     </html>

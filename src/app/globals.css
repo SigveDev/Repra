@@ -12,6 +12,8 @@
 
   --mobile-menu-height: calc(var(--spacing) * 26);
   --mobile-player-height: calc(var(--spacing) * 16);
+
+  --total-mobile-bottom-height: calc(var(--spacing) * 46);
 }
 
 @utility bg-* {

@@ -9,6 +9,7 @@ import { ReactNode, useEffect, useState } from "react";
 const Layout = ({ children }: { children: ReactNode }) => {
   const { session } = useAuthStore();
   const pathname = usePathname();
+  const player: boolean = false;
 
   const [activePage, setActivePage] =
     useState<MobileMenuProps["active"]>("home");
@@ -32,11 +33,11 @@ const Layout = ({ children }: { children: ReactNode }) => {
   }, [pathname]);
 
   return (
-    <div className="w-full h-fit min-h-screen flex flex-col items-center justify-start mb-[calc(var(--mobile-menu-height)_+_var(--mobile-player-height))]">
+    <div className="w-full h-fit min-h-screen flex flex-col items-center justify-start">
       {children}
       {session && (
         <>
-          <Player />
+          {player && <Player />}
           <MobileMenu active={activePage} />
         </>
       )}
