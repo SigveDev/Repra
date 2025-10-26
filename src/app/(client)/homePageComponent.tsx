@@ -15,6 +15,7 @@ import { Plan } from "@/types/plansType";
 import { GetTopPlans } from "@/services/client/plans";
 
 function HomePageComponent() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [topPlans, setTopPlans] = useState<Plan[]>([]);
   const [urlHash, setUrlHash] = useState("");
 
