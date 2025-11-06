@@ -185,7 +185,7 @@ export default function PlanPageComponent({ id }: { id: string }) {
       style={{
         backgroundImage: `linear-gradient(to bottom, ${
           memberStatusColors[user?.prefs?.repraTier || "rookie"]
-        }66, transparent 90%)`,
+        }66, var(--color-bg-primary) 80dvh)`,
       }}
     >
       <BackMenu
