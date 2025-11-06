@@ -17,6 +17,9 @@ interface MobileModalProps {
   open?: boolean;
   onRequestClose?: () => void;
   onRequestOpen?: () => void;
+  variant?: "floating" | "fixed";
+  overlay?: boolean;
+  onCloseAction?: () => void;
 }
 
 interface TriggerProps {
@@ -38,6 +41,8 @@ interface ContentInjectedProps {
   setOpen?: (v: boolean) => void;
   requestClose?: () => void;
   className?: string;
+  variant?: "floating" | "fixed";
+  overlay?: boolean;
 }
 
 interface ContentProps extends ContentInjectedProps {
@@ -45,7 +50,17 @@ interface ContentProps extends ContentInjectedProps {
 }
 
 export const Content = forwardRef<HTMLDivElement, ContentProps>(
-  ({ children, className, open = false, /* setOpen, */ requestClose }, ref) => {
+  (
+    {
+      children,
+      className,
+      open = false,
+      /* setOpen, */ requestClose,
+      variant = "floating",
+      overlay = true,
+    },
+    ref
+  ) => {
     const sheetRef = useRef<HTMLDivElement | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [mounted, setMounted] = useState(false);
@@ -107,16 +122,18 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(
           !open && "pointer-events-none"
         )}
       >
-        <div
-          onClick={() => requestClose?.()}
-          className={cn(
-            "absolute inset-0 bg-black/40 transition-opacity",
-            open
-              ? "opacity-100 pointer-events-auto"
-              : "opacity-0 pointer-events-none",
-            "z-0"
-          )}
-        />
+        {overlay ? (
+          <div
+            onClick={() => requestClose?.()}
+            className={cn(
+              "flex items-end justify-center absolute inset-0 bg-black/40 transition-opacity",
+              open
+                ? "opacity-100 pointer-events-auto"
+                : "opacity-0 pointer-events-none",
+              "z-0"
+            )}
+          />
+        ) : null}
 
         <motion.div
           ref={(node) => {
@@ -130,7 +147,12 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(
           role="dialog"
           aria-modal="true"
           className={cn(
-            "w-full max-w-full bg-bg-secondary rounded-3xl shadow-none border-0 mb-[var(--mobile-menu-height)] z-10",
+            // floating: rounded corners and bottom margin to sit above mobile menu height
+            // fixed: only rounded top corners and no bottom margin (touches bottom)
+            "w-full max-w-full bg-bg-secondary shadow-none border-0 z-10",
+            variant === "floating"
+              ? "rounded-3xl mb-[var(--mobile-menu-height)]"
+              : "rounded-t-3xl",
             className
           )}
           initial={{ y: "100%", opacity: 0 }}
@@ -166,10 +188,23 @@ const MobileModal: React.FC<MobileModalProps> & {
   open: controlledOpen,
   onRequestClose,
   onRequestOpen,
+  variant = "floating",
+  overlay = true,
+  onCloseAction,
 }) => {
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? !!controlledOpen : internalOpen;
+
+  // track previous open state so we can run onCloseAction when it transitions true->false
+  const prevOpenRef = useRef<boolean>(open);
+  useEffect(() => {
+    // if previously open and now closed, call onCloseAction
+    if (prevOpenRef.current && !open) {
+      onCloseAction?.();
+    }
+    prevOpenRef.current = open;
+  }, [open, onCloseAction]);
 
   const requestOpen = () => {
     if (isControlled) onRequestOpen?.();
@@ -192,7 +227,13 @@ const MobileModal: React.FC<MobileModalProps> & {
       return React.cloneElement(el, { setOpen } as any);
     }
     if (el.type === Content || typeAny.displayName === "MobileModal.Content") {
-      return React.cloneElement(el, { open, setOpen, requestClose } as any);
+      return React.cloneElement(el, {
+        open,
+        setOpen,
+        requestClose,
+        variant,
+        overlay,
+      } as any);
     }
     /* eslint-enable @typescript-eslint/no-explicit-any */
     return el;

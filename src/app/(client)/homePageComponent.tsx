@@ -43,7 +43,7 @@ function HomePageComponent() {
   }, []);
 
   return (
-    <div className="p-4 min-h-screen h-fit w-full flex flex-col gap-5">
+    <div className="p-4 pb-[var(--total-mobile-bottom-height)] min-h-screen h-fit w-full flex flex-col gap-5">
       <div className="w-full h-10 flex flex-row justify-between items-center">
         <div className="w-fit h-fit flex flex-row gap-3 justify-center items-center">
           <a

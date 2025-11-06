@@ -21,7 +21,7 @@ function ProfilePageComponent() {
   const { user, logout } = useAuthStore();
   const [signoutConfirm, setSignoutConfirm] = useState(false);
   return (
-    <div className="p-4 min-h-screen h-fit w-full flex flex-col gap-4">
+    <div className="p-4 pb-[var(--total-mobile-bottom-height)] min-h-screen h-fit w-full flex flex-col gap-4">
       <div
         className={cn(
           "w-full h-36 rounded-xl bg-gradient-to-b from-[#7EC8E3] to-80% to-transparent"

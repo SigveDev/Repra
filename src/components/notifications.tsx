@@ -73,7 +73,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
       {children}
 
       {/* Notification container */}
-      <div className="fixed top-4 left-1/2 z-[99999] w-full max-w-screen-sm -translate-x-1/2 px-4 pointer-events-none">
+      <div className="fixed top-2 left-1/2 z-[99999] w-full max-w-screen-sm -translate-x-1/2 px-2 pointer-events-none">
         <div className="flex flex-col items-center gap-3">
           <AnimatePresence initial={false}>
             {items.map((it) => (

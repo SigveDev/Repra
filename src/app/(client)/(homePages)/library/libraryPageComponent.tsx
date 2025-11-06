@@ -20,8 +20,14 @@ import {
   NoteAddStrokeRounded,
 } from "@hugeicons-pro/core-stroke-rounded";
 import Link from "next/link";
+import { CreatePlan, GetMyPlans } from "@/services/client/plans";
+import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { Plan } from "@/types/plansType";
+import Repeat from "@/components/repeat";
 
 function LibraryPageComponent() {
+  const router = useRouter();
   const [tempQuery, setTempQuery] = useState("");
   const [query, setQuery] = useState("");
   const [listType, setListType] = useState<"grid" | "list">(
@@ -33,8 +39,37 @@ function LibraryPageComponent() {
     setListType(type);
   };
 
+  const {
+    isLoading: userPlansIsLoading,
+    data: userPlans,
+    isError: userPlansIsError,
+  } = useQuery<Plan[]>({
+    queryKey: ["userPlans"],
+    queryFn: async () => {
+      return GetMyPlans();
+    },
+  });
+
+  const handleCreateNewPlan = async () => {
+    const characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let randomName = "";
+
+    for (let i = 0; i < 8; i++) {
+      randomName += characters.charAt(
+        Math.floor(Math.random() * characters.length)
+      );
+    }
+
+    const randomPlanName = `New Plan #${randomName}`;
+
+    const newPlan = await CreatePlan(randomPlanName);
+
+    router.push(`/library/plans/${newPlan.$id}`);
+  };
+
   return (
-    <div className="p-4 min-h-screen h-fit w-full flex flex-col gap-5">
+    <div className="p-4 pb-[var(--total-mobile-bottom-height)] min-h-screen h-fit w-full flex flex-col gap-5">
       <div className="w-full h-fit flex flex-row gap-3">
         <form className="grow h-10 flex flex-col gap-3 relative">
           <Input
@@ -70,9 +105,9 @@ function LibraryPageComponent() {
           </MobileModal.Trigger>
           <MobileModal.Content>
             <div className="w-full h-fit flex flex-col gap-4">
-              <Link
-                href="/library/workouts/new"
+              <button
                 className="w-full h-12 rounded-lg flex justify-start items-center text-fg-primary font-semibold gap-2"
+                onClick={handleCreateNewPlan}
               >
                 <div className="w-12 h-12 flex justify-center items-center bg-fg-tertiary rounded-full">
                   <HugeiconsIcon
@@ -81,12 +116,12 @@ function LibraryPageComponent() {
                   />
                 </div>
                 <div className="h-full grow flex flex-col justify-around items-start">
-                  <h3 className="text-base font-semibold">
-                    Create New Workout
-                  </h3>
-                  <p className="text-sm text-fg-secondary">Create a workout</p>
+                  <h3 className="text-base font-semibold">Create New Plan</h3>
+                  <p className="text-sm text-fg-secondary">
+                    Create a workout plan
+                  </p>
                 </div>
-              </Link>
+              </button>
               <Link
                 href="/library/weeks/new"
                 className="w-full h-12 rounded-lg flex justify-start items-center text-fg-primary font-semibold gap-2"
@@ -98,9 +133,9 @@ function LibraryPageComponent() {
                   />
                 </div>
                 <div className="h-full grow flex flex-col justify-around items-start">
-                  <h3 className="text-base font-semibold">Create New Plan</h3>
+                  <h3 className="text-base font-semibold">Create New Group</h3>
                   <p className="text-sm text-fg-secondary">
-                    Create a workout plan
+                    Create a workout plan group
                   </p>
                 </div>
               </Link>
@@ -136,193 +171,81 @@ function LibraryPageComponent() {
             )}
           </div>
           <div className="w-full h-fit flex flex-col gap-2">
-            <Accordion header="New & Updated" defaultOpen>
+            <Accordion header="My Plans" defaultOpen>
               {listType === "grid" ? (
                 <div className="w-full h-fit flex flex-row gap-2 overflow-x-auto py-1 px-0.5">
-                  <LargeCard
-                    href="/plan/0"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Full Body Advanced"
-                    subtitle="7 exercises"
-                  />
-                  <LargeCard
-                    href="/plan/1"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Full Body Beginner"
-                    subtitle="5 exercises"
-                  />
-                  <LargeCard
-                    href="/plan/2"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Push Pull Legs"
-                    subtitle="6 exercises"
-                  />
-                  <LargeCard
-                    href="/plan/3"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Upper Lower Split"
-                    subtitle="5 exercises"
-                  />
-                  <LargeCard
-                    href="/plan/4"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Strength Training"
-                    subtitle="6 exercises"
-                  />
-                  <LargeCard
-                    href="/plan/5"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Core Focus"
-                    subtitle="5 exercises"
-                  />
+                  {userPlansIsLoading ? (
+                    <Repeat count={3}>
+                      <LargeCard
+                        href=""
+                        imageAlt=""
+                        imageSrc=""
+                        title=""
+                        subtitle=""
+                        type="loading"
+                      />
+                    </Repeat>
+                  ) : userPlansIsError ? (
+                    <div className="text-fg-secondary">
+                      Error loading plans.
+                    </div>
+                  ) : userPlans && userPlans.length > 0 ? (
+                    userPlans.map((plan) => (
+                      <LargeCard
+                        key={plan.$id}
+                        href={`/library/plans/${plan.$id}`}
+                        imageAlt="Workout Image"
+                        imageSrc={`/api/image-proxy?url=${encodeURIComponent(
+                          plan.imageUrl || "/images/fallback.webp"
+                        )}`}
+                        title={plan.name}
+                        subtitle={`${plan.exerciseIds.length} ${
+                          plan.exerciseIds.length === 1
+                            ? "exercise"
+                            : "exercises"
+                        }`}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-fg-secondary">No plans found.</div>
+                  )}
                 </div>
               ) : (
                 <div className="w-full max-h-full h-fit flex flex-col gap-3 overflow-y-auto">
-                  <ListCard
-                    href="/plan/0"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Full Body Advanced"
-                    subtitle="7 exercises"
-                  />
-                  <ListCard
-                    href="/plan/1"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Full Body Beginner"
-                    subtitle="5 exercises"
-                  />
-                  <ListCard
-                    href="/plan/2"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Push Pull Legs"
-                    subtitle="6 exercises"
-                  />
-                  <ListCard
-                    href="/plan/3"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Upper Lower Split"
-                    subtitle="5 exercises"
-                  />
-                  <ListCard
-                    href="/plan/4"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Strength Training"
-                    subtitle="6 exercises"
-                  />
-                  <ListCard
-                    href="/plan/5"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Core Focus"
-                    subtitle="5 exercises"
-                  />
+                  {userPlansIsLoading ? (
+                    <Repeat count={3}>
+                      <ListCard
+                        href="/plan/0"
+                        imageAlt="Workout Image"
+                        imageSrc="/images/fallback.webp"
+                        title="Full Body Advanced"
+                        subtitle="7 exercises"
+                      />
+                    </Repeat>
+                  ) : userPlansIsError ? (
+                    <div className="text-fg-secondary">No plans found.</div>
+                  ) : userPlans && userPlans.length > 0 ? (
+                    userPlans.map((plan) => (
+                      <ListCard
+                        key={plan.$id}
+                        href={`/library/plans/${plan.$id}`}
+                        imageAlt="Workout Image"
+                        imageSrc={plan.imageUrl || "/images/fallback.webp"}
+                        title={plan.name}
+                        subtitle={`${plan.exerciseIds.length} ${
+                          plan.exerciseIds.length === 1
+                            ? "exercise"
+                            : "exercises"
+                        }`}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-fg-secondary">No plans found.</div>
+                  )}
                 </div>
               )}
             </Accordion>
-            <Accordion header="My Plans">
-              {listType === "grid" ? (
-                <div className="w-full h-fit flex flex-row gap-2 overflow-x-auto py-1 px-0.5">
-                  <LargeCard
-                    href="/plan/0"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Full Body Advanced"
-                    subtitle="7 exercises"
-                  />
-                  <LargeCard
-                    href="/plan/1"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Full Body Beginner"
-                    subtitle="5 exercises"
-                  />
-                  <LargeCard
-                    href="/plan/2"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Push Pull Legs"
-                    subtitle="6 exercises"
-                  />
-                  <LargeCard
-                    href="/plan/3"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Upper Lower Split"
-                    subtitle="5 exercises"
-                  />
-                  <LargeCard
-                    href="/plan/4"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Strength Training"
-                    subtitle="6 exercises"
-                  />
-                  <LargeCard
-                    href="/plan/5"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Core Focus"
-                    subtitle="5 exercises"
-                  />
-                </div>
-              ) : (
-                <div className="w-full max-h-full h-fit flex flex-col gap-3 overflow-y-auto">
-                  <ListCard
-                    href="/plan/0"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Full Body Advanced"
-                    subtitle="7 exercises"
-                  />
-                  <ListCard
-                    href="/plan/1"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Full Body Beginner"
-                    subtitle="5 exercises"
-                  />
-                  <ListCard
-                    href="/plan/2"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Push Pull Legs"
-                    subtitle="6 exercises"
-                  />
-                  <ListCard
-                    href="/plan/3"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Upper Lower Split"
-                    subtitle="5 exercises"
-                  />
-                  <ListCard
-                    href="/plan/4"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Strength Training"
-                    subtitle="6 exercises"
-                  />
-                  <ListCard
-                    href="/plan/5"
-                    imageAlt="Workout Image"
-                    imageSrc="/images/fallback.webp"
-                    title="Core Focus"
-                    subtitle="5 exercises"
-                  />
-                </div>
-              )}
-            </Accordion>
-            <Accordion header="Friends' Plans">
+            {/* <Accordion header="Friends' Plans">
               {listType === "grid" ? (
                 <div className="w-full h-fit flex flex-row gap-2 overflow-x-auto py-1 px-0.5">
                   <LargeCard
@@ -507,7 +430,7 @@ function LibraryPageComponent() {
                   />
                 </div>
               )}
-            </Accordion>
+            </Accordion>*/}
           </div>
         </section>
       )}

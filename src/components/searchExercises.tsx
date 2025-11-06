@@ -49,7 +49,7 @@ const SearchExercises = ({
   }, [debouncedSearchTerm]);
 
   return (
-    <div className="w-full h- flex flex-col items-center justify-center">
+    <div className="w-full h-[calc(var(--spacing)_*_160)] flex flex-col items-center justify-center">
       <Input
         placeholder="Search Exercises..."
         className="w-full mb-4 border border-fg-tertiary text-fg-primary focus-visible:outline-0"
@@ -57,7 +57,7 @@ const SearchExercises = ({
         onChange={(e) => setSearchTerm(e.target.value)}
       />
       <div className="w-full h-fit flex flex-col gap-2">
-        <div className="w-full flex flex-col gap-2 overflow-y-auto h-96">
+        <div className="w-full flex flex-col gap-2 overflow-y-auto h-[calc(var(--spacing)_*_140)]">
           {results.map((exercise) => (
             <button
               key={exercise.$id}

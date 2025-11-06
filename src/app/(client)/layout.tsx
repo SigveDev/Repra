@@ -3,8 +3,11 @@
 import MobileMenu, { MobileMenuProps } from "@/components/mobileMenu";
 import Player from "@/components/player";
 import { useAuthStore } from "@/store/Auth";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
+
+const queryClient = new QueryClient();
 
 const Layout = ({ children }: { children: ReactNode }) => {
   const { session } = useAuthStore();
@@ -33,15 +36,17 @@ const Layout = ({ children }: { children: ReactNode }) => {
   }, [pathname]);
 
   return (
-    <div className="w-full h-fit min-h-screen flex flex-col items-center justify-start">
-      {children}
-      {session && (
-        <>
-          {player && <Player />}
-          <MobileMenu active={activePage} />
-        </>
-      )}
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <div className="w-full h-fit min-h-screen flex flex-col items-center justify-start">
+        {children}
+        {session && (
+          <>
+            {player && <Player />}
+            <MobileMenu active={activePage} />
+          </>
+        )}
+      </div>
+    </QueryClientProvider>
   );
 };
 

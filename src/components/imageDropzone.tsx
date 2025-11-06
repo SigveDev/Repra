@@ -8,6 +8,11 @@ import { cn } from "@/lib/utils";
 export type ImageDropzoneProps = {
   onChange?: (file: File | null) => void;
   initialPreviewUrl?: string | null;
+  // If `previewUrl` is provided the component becomes controlled for previewing
+  // and will NOT update the visible preview when a new file is dropped. This
+  // lets the parent show the existing image until it has been transformed and
+  // saved.
+  previewUrl?: string | null;
   rejectGif?: boolean;
   className?: string;
   placeholderTitle?: string;
@@ -17,6 +22,7 @@ export type ImageDropzoneProps = {
 export default function ImageDropzone({
   onChange,
   initialPreviewUrl = null,
+  previewUrl: previewUrlProp,
   rejectGif = true,
   className = "",
   placeholderTitle = "Upload Image",
@@ -46,12 +52,18 @@ export default function ImageDropzone({
       const first = acceptedFiles && acceptedFiles[0];
       if (first) {
         setFile(first);
-        const url = URL.createObjectURL(first);
-        setPreviewUrl(url);
+        // Only update the internal preview if the parent hasn't provided a
+        // controlled preview URL. When the parent passes `previewUrl` we
+        // expect it to decide when the displayed image should change (for
+        // example after the TransformImageModal saves).
+        if (!previewUrlProp) {
+          const url = URL.createObjectURL(first);
+          setPreviewUrl(url);
+        }
         if (onChange) onChange(first);
       }
     },
-    [onChange]
+    [onChange, previewUrlProp]
   );
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -63,7 +75,13 @@ export default function ImageDropzone({
 
   useEffect(() => {
     return () => {
-      if (previewUrl && previewUrl !== initialPreviewUrl) {
+      // Only revoke object URLs that we created internally and that are not
+      // equal to the externally-controlled preview URL.
+      if (
+        previewUrl &&
+        previewUrl !== initialPreviewUrl &&
+        previewUrl !== previewUrlProp
+      ) {
         try {
           URL.revokeObjectURL(previewUrl);
         } catch (e) {
@@ -71,7 +89,7 @@ export default function ImageDropzone({
         }
       }
     };
-  }, [previewUrl, initialPreviewUrl]);
+  }, [previewUrl, initialPreviewUrl, previewUrlProp]);
 
   return (
     <div
@@ -83,14 +101,15 @@ export default function ImageDropzone({
     >
       <input {...getInputProps()} />
 
-      {previewUrl ? (
+      {previewUrlProp ?? previewUrl ? (
         <div className="w-full h-full relative">
           <Image
-            src={previewUrl as string}
+            src={(previewUrlProp ?? previewUrl) as string}
             alt={file?.name ?? "preview"}
             className="object-cover"
             fill
             unoptimized
+            priority
           />
         </div>
       ) : (

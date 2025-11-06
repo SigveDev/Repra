@@ -12,7 +12,7 @@ function SearchPageComponent() {
     "workouts"
   );
   return (
-    <div className="p-4 min-h-screen h-fit w-full flex flex-col gap-5">
+    <div className="p-4 pb-[var(--total-mobile-bottom-height)] min-h-screen h-fit w-full flex flex-col gap-5">
       <div className="w-full h-fit flex flex-col gap-3">
         <form className="w-full h-10 flex flex-col gap-3 relative">
           <Input

@@ -14,12 +14,12 @@ export default async function getOrCreateStorage() {
         bucketId: imagesBucket,
         name: imagesBucket,
         permissions: [
-          Permission.create("users"),
+          Permission.create("user"),
           Permission.read("users"),
-          Permission.update("users"),
-          Permission.delete("users"),
+          Permission.read("any"),
+          Permission.update("user"),
+          Permission.delete("user"),
         ],
-        fileSecurity: true,
         allowedFileExtensions: ["jpg", "png", "gif", "jpeg", "webp", "heic"],
       });
 

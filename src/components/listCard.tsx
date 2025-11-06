@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { forwardRef, AnchorHTMLAttributes, ReactNode } from "react";
+import { forwardRef, AnchorHTMLAttributes, ReactNode, Ref } from "react";
+import { Skeleton } from "./skeleton";
 
 type ListCardProps = {
   href: string;
@@ -10,12 +11,13 @@ type ListCardProps = {
   title: string;
   subtitle?: string;
   style?: "default" | "profile";
+  type?: "default" | "loading";
   state?: "default" | "active" | "disabled";
   className?: string;
   children?: ReactNode;
 } & AnchorHTMLAttributes<HTMLAnchorElement>;
 
-const ListCard = forwardRef<HTMLAnchorElement, ListCardProps>(
+const ListCard = forwardRef<HTMLAnchorElement | HTMLDivElement, ListCardProps>(
   (
     {
       href,
@@ -24,62 +26,96 @@ const ListCard = forwardRef<HTMLAnchorElement, ListCardProps>(
       title,
       subtitle,
       style = "default",
+      type = "default",
       state = "default",
       className,
       children,
       ...props
     },
     ref
-  ) => (
-    <Link
-      href={href}
-      className={cn(
-        "w-full h-14 flex-shrink-0 flex flex-row gap-3 items-center",
-        className
-      )}
-      ref={ref}
-      {...props}
-    >
-      <div className="h-full aspect-square relative rounded-sm">
-        <Image
-          src={imageSrc}
-          alt={imageAlt}
-          className={`${style === "profile" ? "rounded-full" : "rounded-sm"} ${
-            state === "disabled"
-              ? "opacity-50 grayscale"
-              : state === "active"
-              ? "border-2 border-primary"
-              : ""
-          }`}
-          fill
-          priority
-        />
-      </div>
-      <div className="w-full h-fit flex flex-col justify-center items-start text-sm">
-        <span
-          className={
-            state === "active" || state === "default"
-              ? "text-fg-primary"
-              : "text-fg-secondary"
-          }
+  ) => {
+    // If loading, render non-interactive div with skeleton placeholders
+    if (type === "loading") {
+      return (
+        <div
+          ref={ref as unknown as Ref<HTMLDivElement>}
+          className={cn(
+            "w-full h-14 flex-shrink-0 flex flex-row gap-3 items-center",
+            className
+          )}
+          aria-busy
         >
-          {title}
-        </span>
-        {subtitle && (
-          <span
-            className={`text-xs ${
-              state === "active" || state === "default"
-                ? "text-fg-secondary"
-                : "text-fg-tertiary"
-            }`}
-          >
-            {subtitle}
-          </span>
+          <div className="h-full aspect-square relative rounded-sm">
+            <Skeleton
+              className={`w-full h-full ${
+                style === "profile" ? "rounded-full" : "rounded-sm"
+              }`}
+            />
+          </div>
+
+          <div className="w-full h-fit flex flex-col justify-center items-start text-sm">
+            <Skeleton className="h-4 w-40 rounded-md mb-1" />
+            <Skeleton className="h-3 w-28 rounded-md" />
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <Link
+        href={href}
+        className={cn(
+          "w-full h-14 flex-shrink-0 flex flex-row gap-3 items-center",
+          className
         )}
-        {children}
-      </div>
-    </Link>
-  )
+        ref={ref as unknown as Ref<HTMLAnchorElement>}
+        {...props}
+      >
+        <div className="h-full aspect-square relative rounded-sm">
+          <Image
+            loader={() => imageSrc}
+            src={imageSrc}
+            alt={imageAlt}
+            className={`${
+              style === "profile" ? "rounded-full" : "rounded-sm"
+            } ${
+              state === "disabled"
+                ? "opacity-50 grayscale"
+                : state === "active"
+                ? "border-2 border-primary"
+                : ""
+            } object-cover`}
+            fill
+            priority
+            unoptimized
+          />
+        </div>
+        <div className="w-full h-fit flex flex-col justify-center items-start text-sm">
+          <span
+            className={
+              state === "active" || state === "default"
+                ? "text-fg-primary"
+                : "text-fg-secondary"
+            }
+          >
+            {title}
+          </span>
+          {subtitle && (
+            <span
+              className={`text-xs ${
+                state === "active" || state === "default"
+                  ? "text-fg-secondary"
+                  : "text-fg-tertiary"
+              }`}
+            >
+              {subtitle}
+            </span>
+          )}
+          {children}
+        </div>
+      </Link>
+    );
+  }
 );
 
 ListCard.displayName = "ListCard";
