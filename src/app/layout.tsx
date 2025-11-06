@@ -3,7 +3,6 @@ import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import NotificationProvider from "../components/notifications";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const satoshi = localFont({
   src: [
