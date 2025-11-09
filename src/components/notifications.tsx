@@ -8,7 +8,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, PanInfo } from "framer-motion";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01StrokeStandard } from "@hugeicons-pro/core-stroke-standard";
 
@@ -196,9 +196,36 @@ const NotificationCard: React.FC<{
     };
   }, []);
 
+  // Handle swipe up to dismiss
+  const handleDragEnd = (
+    event: React.PointerEvent | MouseEvent | TouchEvent,
+    info: PanInfo
+  ) => {
+    // If the user swiped up far enough or with enough upward velocity, dismiss
+    const upwardOffset = info.offset.y;
+    const upwardVelocity = info.velocity.y;
+
+    // offset.y is negative when dragging up. velocity.y is negative for upward swipes.
+    const offsetThreshold = -40; // pixels
+    const velocityThreshold = -500; // px/s
+
+    if (
+      upwardOffset <= offsetThreshold ||
+      upwardVelocity <= velocityThreshold
+    ) {
+      // Trigger close — AnimatePresence will run the exit animation
+      onClose();
+    }
+    // otherwise, framer-motion will naturally spring the card back into place
+  };
+
   return (
     <motion.div
       layout
+      // allow vertical dragging so users can swipe up to dismiss
+      drag="y"
+      dragElastic={0.25}
+      onDragEnd={handleDragEnd}
       initial={{ y: -24, opacity: 0, scale: 0.98 }}
       animate={{ y: 0, opacity: 1, scale: 1 }}
       exit={{ y: -12, opacity: 0, scale: 0.98 }}
@@ -240,7 +267,7 @@ const NotificationCard: React.FC<{
             aria-label="Dismiss notification"
             className="text-sm text-fg-secondary/80"
           >
-            <HugeiconsIcon icon={Cancel01StrokeStandard} className="w-5 h-5" />
+            <HugeiconsIcon icon={Cancel01StrokeStandard} className="w-8 h-8" />
           </button>
         </div>
       </div>

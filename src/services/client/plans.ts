@@ -105,7 +105,7 @@ export const GetMyPlans = async (): Promise<Plan[]> => {
   const plans = (await tablesDB.listRows({
     databaseId: db,
     tableId: planTable,
-    queries: [Query.equal("authorId", user.$id)],
+    queries: [Query.equal("authorId", user.$id), Query.orderDesc("$updatedAt")],
   })) as Models.RowList<Plan>;
   return plans.rows;
 };
@@ -114,7 +114,7 @@ export const GetUserPlans = async (userId: string): Promise<Plan[]> => {
   const plans = (await tablesDB.listRows({
     databaseId: db,
     tableId: planTable,
-    queries: [Query.equal("authorId", userId)],
+    queries: [Query.equal("authorId", userId), Query.orderDesc("$updatedAt")],
   })) as Models.RowList<Plan>;
   return plans.rows;
 };
@@ -134,7 +134,7 @@ export const GetTopPlans = async () => {
     const plans = (await tablesDB.listRows({
       databaseId: db,
       tableId: planTable,
-      queries: [Query.limit(6), Query.orderDesc("$createdAt")],
+      queries: [Query.limit(6), Query.orderDesc("$updatedAt")],
     })) as Models.RowList<Plan>;
 
     return plans.rows;

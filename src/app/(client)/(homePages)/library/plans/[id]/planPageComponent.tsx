@@ -414,18 +414,6 @@ export default function PlanPageComponent({ id }: { id: string }) {
                           });
                         } catch (error) {
                           console.error("Error sharing:", error);
-
-                          showNotification({
-                            icon: (
-                              <HugeiconsIcon
-                                icon={AlertCircleStrokeStandard}
-                                className="w-7 h-7 text-fg-primary"
-                              />
-                            ),
-                            header: "There was a problem",
-                            content: "Your plan could not be shared.",
-                            duration: 4000,
-                          });
                         }
                       }}
                       className="flex justify-start items-center text-fg-primary font-semibold text-lg h-10 w-full"
