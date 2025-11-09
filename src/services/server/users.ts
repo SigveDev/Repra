@@ -1,9 +1,21 @@
 import { users } from "@/models/server/config";
-import { Query } from "node-appwrite";
+import { UserPrefs } from "@/store/Auth";
+import { Models, Query } from "node-appwrite";
 
-export async function isUsernameAvailable(username: string): Promise<boolean> {
+export const isUsernameAvailable = async (
+  username: string
+): Promise<boolean> => {
   const userList = await users.list({
     queries: [Query.equal("$id", username)],
   });
   return userList.total === 0;
-}
+};
+
+export const getUserProfileFromUserId = async (
+  userId: string
+): Promise<Models.User<UserPrefs>> => {
+  const userProfile = (await users.get({
+    userId: userId,
+  })) as Models.User<UserPrefs>;
+  return userProfile;
+};

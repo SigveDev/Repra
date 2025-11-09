@@ -7,12 +7,7 @@ export default async function createPlansTable() {
     databaseId: db,
     tableId: planTable,
     name: planTable,
-    permissions: [
-      Permission.create("users"),
-      Permission.read("users"),
-      Permission.update("users"),
-      Permission.delete("users"),
-    ],
+    permissions: [Permission.create("users")],
     rowSecurity: true,
   });
   console.log(`Created table: ${planTable}`);

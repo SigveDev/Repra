@@ -1,8 +1,10 @@
+"use client";
+
 import Link from "next/link";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { forwardRef, AnchorHTMLAttributes, ReactNode, Ref } from "react";
 import { Skeleton } from "./skeleton";
+import CustomImage from "./CustomImage";
 
 type ListCardProps = {
   href: string;
@@ -34,7 +36,6 @@ const ListCard = forwardRef<HTMLAnchorElement | HTMLDivElement, ListCardProps>(
     },
     ref
   ) => {
-    // If loading, render non-interactive div with skeleton placeholders
     if (type === "loading") {
       return (
         <div
@@ -72,8 +73,7 @@ const ListCard = forwardRef<HTMLAnchorElement | HTMLDivElement, ListCardProps>(
         {...props}
       >
         <div className="h-full aspect-square relative rounded-sm">
-          <Image
-            loader={() => imageSrc}
+          <CustomImage
             src={imageSrc}
             alt={imageAlt}
             className={`${
@@ -84,10 +84,7 @@ const ListCard = forwardRef<HTMLAnchorElement | HTMLDivElement, ListCardProps>(
                 : state === "active"
                 ? "border-2 border-primary"
                 : ""
-            } object-cover`}
-            fill
-            priority
-            unoptimized
+            }`}
           />
         </div>
         <div className="w-full h-fit flex flex-col justify-center items-start text-sm">

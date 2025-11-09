@@ -7,12 +7,7 @@ export default async function createFollowersTable() {
     databaseId: db,
     tableId: followersTable,
     name: followersTable,
-    permissions: [
-      Permission.create("users"),
-      Permission.read("users"),
-      Permission.update("users"),
-      Permission.delete("users"),
-    ],
+    permissions: [Permission.create("users"), Permission.read("users")],
     rowSecurity: true,
   });
   console.log(`Created table: ${followersTable}`);

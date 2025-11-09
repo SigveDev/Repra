@@ -3,9 +3,9 @@ import { db, exerciseTable } from "@/models/name";
 import { Models, Query } from "node-appwrite";
 import { Exercise } from "@/types/plansType";
 
-export async function exercisesSearch(
+export const exercisesSearch = async (
   query: string | null
-): Promise<Exercise[]> {
+): Promise<Exercise[]> => {
   if (!query || query.trim() === "") {
     const exerciseList = (await tablesDB.listRows({
       databaseId: db,
@@ -25,4 +25,4 @@ export async function exercisesSearch(
     })) as Models.RowList<Exercise>;
     return exerciseList.rows;
   }
-}
+};

@@ -6,13 +6,13 @@ import BackMenu from "@/components/backMenu";
 import ImageDropzone from "@/components/imageDropzone";
 import MobileModal from "@/components/mobileModal";
 import { useNotification } from "@/components/notifications";
+import Repeat from "@/components/repeat";
 import SearchExercises from "@/components/searchExercises";
 import { Skeleton } from "@/components/skeleton";
 import compareJsonObjects from "@/functions/compareJsonObjects";
-import getBlendedColor from "@/functions/getBlendedColor";
 import { GetExerciseFromId } from "@/services/client/exercises";
 import {
-  changePlanToPrivate,
+  ChangePlanToPrivate,
   DeletePlan,
   GetPlanFromId,
   UpdateImageUrl,
@@ -85,48 +85,6 @@ export default function PlanPageComponent({ id }: { id: string }) {
     },
   });
 
-  useEffect(() => {
-    let metaThemeColor = document.querySelector(
-      "meta[name='theme-color']"
-    ) as HTMLMetaElement | null;
-    if (!metaThemeColor) {
-      metaThemeColor = document.createElement("meta");
-      metaThemeColor.setAttribute("name", "theme-color");
-      document.head.appendChild(metaThemeColor);
-    }
-
-    const previousContent = metaThemeColor.getAttribute("content");
-    let bgHexForRestore: string | null = null;
-    let canceled = false;
-
-    const baseHex = memberStatusColors[user?.prefs?.repraTier || "rookie"];
-    getBlendedColor(baseHex, "66").then(
-      ({ blendedHex, bgHexForRestore: bgRestore }) => {
-        if (canceled) return;
-        bgHexForRestore = bgRestore;
-        if (metaThemeColor) metaThemeColor.setAttribute("content", blendedHex);
-      }
-    );
-
-    return () => {
-      canceled = true;
-      if (metaThemeColor) {
-        if (bgHexForRestore) {
-          metaThemeColor.setAttribute("content", bgHexForRestore);
-        } else if (previousContent) {
-          metaThemeColor.setAttribute("content", previousContent);
-        } else {
-          try {
-            if (metaThemeColor.parentNode)
-              metaThemeColor.parentNode.removeChild(metaThemeColor);
-          } catch (e) {
-            void e;
-          }
-        }
-      }
-    };
-  }, [user]);
-
   const handleSavePlan = async () => {
     if (plan && editedPlan) {
       try {
@@ -179,6 +137,9 @@ export default function PlanPageComponent({ id }: { id: string }) {
     }
   }, [selectedExercises, editedPlan]);
 
+  console.log("editedPlan:", editedPlan);
+  console.log("selectedExercises:", selectedExercises);
+
   return (
     <div
       className="w-full h-fit min-h-screen flex flex-col items-center justify-start p-4 pb-[var(--total-mobile-bottom-height)] gap-2"
@@ -193,7 +154,7 @@ export default function PlanPageComponent({ id }: { id: string }) {
           if (hasUnsavedChanges) {
             setShowSaveMenu(true);
           } else {
-            router.push("/library");
+            router.back();
           }
         }}
       />
@@ -360,7 +321,7 @@ export default function PlanPageComponent({ id }: { id: string }) {
                     <button
                       onClick={async () => {
                         if (!plan || !editedPlan) return;
-                        const result = await changePlanToPrivate(
+                        const result = await ChangePlanToPrivate(
                           plan.$id,
                           !editedPlan.isPrivate
                         );
@@ -633,6 +594,12 @@ export default function PlanPageComponent({ id }: { id: string }) {
                 </div>
               </div>
             ))
+          ) : selectedExercises.length === 0 &&
+            plan &&
+            plan.exerciseIds.length > 0 ? (
+            <Repeat count={3}>
+              <Skeleton className="w-full h-14 rounded-lg" />
+            </Repeat>
           ) : (
             <div className="w-full h-fit flex flex-col justify-center items-center text-center text-fg-secondary">
               <span className="text-sm">No exercises added yet.</span>

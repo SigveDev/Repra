@@ -10,10 +10,23 @@
   --color-bg-secondary: #202020;
   --color-bg-main: #060606;
 
+  --color-other-alert: #401209;
+
   --mobile-menu-height: calc(var(--spacing) * 26);
   --mobile-player-height: calc(var(--spacing) * 16);
 
   --total-mobile-bottom-height: calc(var(--spacing) * 46);
+}
+
+@theme {
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
 }
 
 .no-scrollbar {

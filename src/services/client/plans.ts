@@ -53,7 +53,7 @@ export const UpdateImageUrl = async (
   return updatedPlan;
 };
 
-export const changePlanToPrivate = async (
+export const ChangePlanToPrivate = async (
   planId: string,
   isPrivate: boolean
 ): Promise<Plan> => {
@@ -130,12 +130,34 @@ export const GetTopPlans = async () => {
     new Set(lastWorkouts.rows.map((workout) => workout.planId).filter(Boolean))
   );
 
-  if (planIds.length === 0) return [];
+  if (planIds.length === 0) {
+    const plans = (await tablesDB.listRows({
+      databaseId: db,
+      tableId: planTable,
+      queries: [Query.limit(6), Query.orderDesc("$createdAt")],
+    })) as Models.RowList<Plan>;
+
+    return plans.rows;
+  }
 
   const plans = (await tablesDB.listRows({
     databaseId: db,
     tableId: planTable,
     queries: [Query.equal("$id", planIds), Query.limit(10)],
+  })) as Models.RowList<Plan>;
+
+  return plans.rows;
+};
+
+export const GetPublicPlans = async (): Promise<Plan[]> => {
+  const user = await account.get();
+  const plans = (await tablesDB.listRows({
+    databaseId: db,
+    tableId: planTable,
+    queries: [
+      Query.equal("isPrivate", false),
+      Query.notEqual("authorId", user.$id),
+    ],
   })) as Models.RowList<Plan>;
 
   return plans.rows;

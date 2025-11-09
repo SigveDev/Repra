@@ -1,10 +1,9 @@
 "use client";
 
 import { HugeiconsIcon } from "@hugeicons/react";
-import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
-import { format } from "date-fns";
+import { differenceInSeconds, format } from "date-fns";
 import { formatSecondsToFullTime } from "@/lib/formatSecondsToFullTime";
 import LargeCard from "@/components/largeCard";
 import {
@@ -12,11 +11,23 @@ import {
   Notification01StrokeStandard,
 } from "@hugeicons-pro/core-stroke-standard";
 import { Plan } from "@/types/plansType";
-import { GetTopPlans } from "@/services/client/plans";
+import {
+  GetPlanFromId,
+  GetPublicPlans,
+  GetTopPlans,
+} from "@/services/client/plans";
+import { useQuery, useQueries } from "@tanstack/react-query";
+import { Models } from "appwrite";
+import { UserPrefs } from "@/store/Auth";
+import CustomImage from "@/components/CustomImage";
+import Repeat from "@/components/repeat";
+import { Skeleton } from "@/components/skeleton";
+import { GetMyLatestWorkouts } from "@/services/client/workouts";
+import { Workout } from "@/types/workoutsType";
+import { Friend } from "@/types/socialsType";
+import { MyFriends } from "@/services/client/socials";
 
 function HomePageComponent() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [topPlans, setTopPlans] = useState<Plan[]>([]);
   const [urlHash, setUrlHash] = useState("");
 
   useEffect(() => {
@@ -33,14 +44,121 @@ function HomePageComponent() {
     };
   }, []);
 
-  useEffect(() => {
-    const fetchTopPlans = async () => {
-      const plans = await GetTopPlans();
-      setTopPlans(plans);
-    };
+  const {
+    isLoading: isLoadingPlans,
+    data: topPlans,
+    isError: isErrorPlans,
+  } = useQuery<Plan[]>({
+    queryKey: ["topPlans"],
+    queryFn: GetTopPlans,
+  });
 
-    fetchTopPlans();
-  }, []);
+  const {
+    isLoading: isLoadingWorkouts,
+    data: latestWorkouts,
+    isError: isErrorWorkouts,
+  } = useQuery<Workout[]>({
+    queryKey: ["latestWorkouts"],
+    queryFn: GetMyLatestWorkouts,
+  });
+
+  const {
+    isLoading: isLoadingPublicPlans,
+    data: popularPlans,
+    isError: isErrorPublicPlans,
+  } = useQuery<Plan[]>({
+    queryKey: ["popularPlans"],
+    queryFn: GetPublicPlans,
+  });
+
+  const { data: friends } = useQuery<Friend[]>({
+    queryKey: ["myFriends"],
+    queryFn: MyFriends,
+  });
+
+  // derived maps (built from react-query results) — do not keep in state to avoid update loops
+
+  const friendQueries = useQueries({
+    queries: (friends?.slice(0, 6) || []).map((friend) => ({
+      queryKey: ["friendDetails", friend.$id],
+      queryFn: async () => {
+        const [userRes, activeRes] = await Promise.all([
+          fetch(
+            `/api/account/getUserProfile?username=${encodeURIComponent(
+              friend.friendId
+            )}`
+          ).then((r) => r.json()),
+          fetch(
+            `/api/workouts/getActiveWorkout?username=${encodeURIComponent(
+              friend.friendId
+            )}`
+          ).then((r) => r.json()),
+        ]);
+
+        return {
+          friendId: friend.$id,
+          user: (userRes as Models.User<UserPrefs>) || null,
+          activeWorkout:
+            (activeRes &&
+              (activeRes as { activeWorkout?: boolean }).activeWorkout) ||
+            false,
+        } as {
+          friendId: string;
+          user: Models.User<UserPrefs> | null;
+          activeWorkout: boolean;
+        };
+      },
+      staleTime: 1000 * 60 * 5,
+      enabled: !!friend.friendId,
+    })),
+  });
+
+  const friendsDetailsMap = useMemo(() => {
+    const next: Record<
+      string,
+      { activeWorkout: boolean; user: Models.User<UserPrefs> | null }
+    > = {};
+    if (!friendQueries || friendQueries.length === 0) return next;
+    friendQueries.forEach((q) => {
+      if (q.data) {
+        next[q.data.friendId] = {
+          activeWorkout: q.data.activeWorkout,
+          user: q.data.user,
+        };
+      }
+    });
+    return next;
+  }, [friendQueries]);
+
+  const uniquePlanIds = useMemo(
+    () =>
+      latestWorkouts
+        ? Array.from(
+            new Set(latestWorkouts.map((w) => w.planId).filter(Boolean))
+          )
+        : [],
+    [latestWorkouts]
+  );
+
+  const planQueries = useQueries({
+    queries: uniquePlanIds.map((planId) => ({
+      queryKey: ["plan", planId],
+      queryFn: () => GetPlanFromId(planId),
+      staleTime: 1000 * 60 * 5,
+      enabled: !!planId,
+    })),
+  });
+
+  const workoutPlansMap = useMemo(() => {
+    const next: Record<string, Plan | null> = {};
+    if (!planQueries || planQueries.length === 0) return next;
+    planQueries.forEach((q, i) => {
+      const id = uniquePlanIds[i];
+      if (q.data) next[id] = q.data as Plan;
+      else next[id] = null;
+    });
+    return next;
+  }, [planQueries, uniquePlanIds]);
 
   return (
     <div className="p-4 pb-[var(--total-mobile-bottom-height)] min-h-screen h-fit w-full flex flex-col gap-5">
@@ -87,76 +205,48 @@ function HomePageComponent() {
         className="w-full h-fit flex flex-col gap-8"
       >
         <div className="w-full h-fit grid grid-cols-2 grid-rows-3 gap-3">
-          <button className="w-full h-15 bg-bg-secondary rounded-2xl p-2 flex justify-center items-center gap-2">
-            <div className="h-full aspect-square relative rounded-sm">
-              <Image
-                src="/images/fallback.webp"
-                alt="Workout Image"
-                className="rounded-sm"
-                fill
-              />
+          {topPlans && topPlans.length > 0 ? (
+            topPlans.slice(0, 6).map((plan: Plan, index: number) => (
+              <Link
+                href={`/library/plans/${plan.$id}`}
+                className="w-full h-15 bg-bg-secondary rounded-xl p-2 flex justify-center items-center gap-2"
+                key={index}
+              >
+                <div className="h-full aspect-square relative rounded-sm">
+                  <CustomImage
+                    src={plan.imageUrl || "/images/fallback.webp"}
+                    alt={plan.name || "Workout Image"}
+                    className="rounded-sm"
+                  />
+                </div>
+                <div className="grow h-full flex flex-col justify-center items-start text-sm overflow-hidden">
+                  <span className="text-fg-primary w-full overflow-hidden text-ellipsis flex-none text-nowrap">
+                    {plan.name}
+                  </span>
+                  <span className="text-fg-secondary">
+                    {plan.exerciseIds.length} exercises
+                  </span>
+                </div>
+              </Link>
+            ))
+          ) : isLoadingPlans ? (
+            <Repeat count={6}>
+              <Skeleton className="w-full h-15 bg-bg-secondary rounded-xl p-2" />
+            </Repeat>
+          ) : isErrorPlans ? (
+            <div className="h-[calc((var(--spacing)_*_45)_+_(var(--spacing)_*_6))] col-span-2 row-span-3 flex flex-col justify-center items-center rounded-xl p-4 bg-other-alert text-fg-primary text-center">
+              <span className="w-3/4">
+                There was an error loading plans, please try again later.
+              </span>
             </div>
-            <div className="grow h-full flex flex-col justify-center items-start text-sm">
-              <span className="text-fg-primary">Push</span>
-              <span className="text-fg-secondary">5 exercises</span>
+          ) : (
+            <div className="h-[calc((var(--spacing)_*_45)_+_(var(--spacing)_*_6))] col-span-2 row-span-3 flex flex-col justify-center items-center rounded-xl p-4 bg-bg-secondary text-fg-primary text-center">
+              <span className="w-3/4">
+                You don&#39;t have any plans yet. Explore the library to create
+                your first plan!
+              </span>
             </div>
-          </button>
-          <button className="w-full h-15 bg-bg-secondary rounded-2xl p-2 flex justify-center items-center gap-2">
-            <div className="h-full aspect-square relative rounded-sm">
-              <Image
-                src="/images/fallback.webp"
-                alt="Workout Image"
-                className="rounded-sm"
-                fill
-              />
-            </div>
-            <div className="grow h-full flex flex-col justify-center items-start text-sm">
-              <span className="text-fg-primary">Pull</span>
-              <span className="text-fg-secondary">6 exercises</span>
-            </div>
-          </button>
-          <button className="w-full h-15 bg-bg-secondary rounded-2xl p-2 flex justify-center items-center gap-2">
-            <div className="h-full aspect-square relative rounded-sm">
-              <Image
-                src="/images/fallback.webp"
-                alt="Workout Image"
-                className="rounded-sm"
-                fill
-              />
-            </div>
-            <div className="grow h-full flex flex-col justify-center items-start text-sm">
-              <span className="text-fg-primary">Leggs</span>
-              <span className="text-fg-secondary">5 exercises</span>
-            </div>
-          </button>
-          <button className="w-full h-15 bg-bg-secondary rounded-2xl p-2 flex justify-center items-center gap-2">
-            <div className="h-full aspect-square relative rounded-sm">
-              <Image
-                src="/images/fallback.webp"
-                alt="Workout Image"
-                className="rounded-sm"
-                fill
-              />
-            </div>
-            <div className="grow h-full flex flex-col justify-center items-start text-sm">
-              <span className="text-fg-primary">Upper</span>
-              <span className="text-fg-secondary">6 exercises</span>
-            </div>
-          </button>
-          <button className="w-full h-15 bg-bg-secondary rounded-2xl p-2 flex justify-center items-center gap-2">
-            <div className="h-full aspect-square relative rounded-sm">
-              <Image
-                src="/images/fallback.webp"
-                alt="Workout Image"
-                className="rounded-sm"
-                fill
-              />
-            </div>
-            <div className="grow h-full flex flex-col justify-center items-start text-sm">
-              <span className="text-fg-primary">Lower</span>
-              <span className="text-fg-secondary">5 exercises</span>
-            </div>
-          </button>
+          )}
         </div>
         <div className="w-full h-fit flex flex-col gap-2">
           <div className="w-full h-fit flex flex-row justify-between items-center">
@@ -165,168 +255,141 @@ function HomePageComponent() {
             </h2>
           </div>
           <div className="w-full h-fit flex-nowrap overflow-x-scroll overflow-y-hidden flex flex-row gap-2 justify-start items-center no-scrollbar">
-            <Link
-              href="/workout/1"
-              className="w-40 h-14 flex-shrink-0 flex flex-row gap-2 px-2 py-1.5 bg-bg-secondary rounded-2xl"
-            >
-              <div className="h-full aspect-square flex justify-center items-center text-center text-fg-primary text-sm">
-                <span>{format(new Date(), "dd. MMM")}</span>
-              </div>
-              <div className="grow h-full flex flex-col justify-center items-start text-sm">
-                <span className="text-fg-primary">Push</span>
-                <span className="text-fg-secondary">
-                  {formatSecondsToFullTime(3853)}
+            {latestWorkouts && latestWorkouts.length > 0 ? (
+              latestWorkouts.map((workout, index) => {
+                const plan = workoutPlansMap[workout.planId];
+
+                return (
+                  <Link
+                    key={index}
+                    href={`/library/workout/${workout.$id}`}
+                    className="w-40 h-14 flex-shrink-0 flex flex-row gap-2 px-2 py-1.5 bg-bg-secondary rounded-2xl"
+                  >
+                    <div className="h-full aspect-square flex justify-center items-center text-center text-fg-primary text-sm">
+                      <span>
+                        {format(new Date(workout.endedAt || 0), "dd. MMM")}
+                      </span>
+                    </div>
+                    <div className="grow h-full flex flex-col justify-center items-start text-sm">
+                      <span className="text-fg-primary">
+                        {plan ? plan.name : "Unknown Plan"}
+                      </span>
+                      <span className="text-fg-secondary">
+                        {formatSecondsToFullTime(
+                          differenceInSeconds(
+                            new Date(workout.endedAt || 0),
+                            new Date(workout.startedAt || 0)
+                          )
+                        )}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })
+            ) : isLoadingWorkouts ? (
+              <Repeat count={6}>
+                <Skeleton className="w-40 h-14 flex-shrink-0 bg-bg-secondary rounded-2xl" />
+              </Repeat>
+            ) : isErrorWorkouts ? (
+              <div className="h-14 w-full bg-other-alert rounded-2xl p-4 flex flex-col justify-center items-center text-fg-primary text-center">
+                <span className="w-full">
+                  There was an error loading your workouts, please try again
+                  later.
                 </span>
               </div>
-            </Link>
-            <Link
-              href="/workout/2"
-              className="w-40 h-14 flex-shrink-0 flex flex-row gap-2 px-2 py-1.5 bg-bg-secondary rounded-2xl"
-            >
-              <div className="h-full aspect-square flex justify-center items-center text-center text-fg-primary text-sm">
-                <span>{format(new Date(), "dd. MMM")}</span>
-              </div>
-              <div className="grow h-full flex flex-col justify-center items-start text-sm">
-                <span className="text-fg-primary">Pull</span>
-                <span className="text-fg-secondary">
-                  {formatSecondsToFullTime(2753)}
+            ) : (
+              <div className="h-14 w-full bg-bg-secondary rounded-2xl p-4 flex flex-col justify-center items-center text-fg-primary text-center">
+                <span className="w-full">
+                  You don&#39;t have any workouts yet. Start your first workout
+                  today!
                 </span>
               </div>
-            </Link>
-            <Link
-              href="/workout/3"
-              className="w-40 h-14 flex-shrink-0 flex flex-row gap-2 px-2 py-1.5 bg-bg-secondary rounded-2xl"
-            >
-              <div className="h-full aspect-square flex justify-center items-center text-center text-fg-primary text-sm">
-                <span>{format(new Date(), "dd. MMM")}</span>
-              </div>
-              <div className="grow h-full flex flex-col justify-center items-start text-sm">
-                <span className="text-fg-primary">Leggs</span>
-                <span className="text-fg-secondary">
-                  {formatSecondsToFullTime(3053)}
-                </span>
-              </div>
-            </Link>
-            <Link
-              href="/workout/4"
-              className="w-40 h-14 flex-shrink-0 flex flex-row gap-2 px-2 py-1.5 bg-bg-secondary rounded-2xl"
-            >
-              <div className="h-full aspect-square flex justify-center items-center text-center text-fg-primary text-sm">
-                <span>{format(new Date(), "dd. MMM")}</span>
-              </div>
-              <div className="grow h-full flex flex-col justify-center items-start text-sm">
-                <span className="text-fg-primary">Upper</span>
-                <span className="text-fg-secondary">
-                  {formatSecondsToFullTime(4153)}
-                </span>
-              </div>
-            </Link>
-            <Link
-              href="/workout/5"
-              className="w-40 h-14 flex-shrink-0 flex flex-row gap-2 px-2 py-1.5 bg-bg-secondary rounded-2xl"
-            >
-              <div className="h-full aspect-square flex justify-center items-center text-center text-fg-primary text-sm">
-                <span>{format(new Date(), "dd. MMM")}</span>
-              </div>
-              <div className="grow h-full flex flex-col justify-center items-start text-sm">
-                <span className="text-fg-primary">Lower</span>
-                <span className="text-fg-secondary">
-                  {formatSecondsToFullTime(4153)}
-                </span>
-              </div>
-            </Link>
+            )}
           </div>
         </div>
         <div className="w-full h-fit flex flex-col gap-2">
           <div className="w-full h-fit flex flex-row justify-between items-center">
             <h2 className="text-xl font-semibold text-fg-primary">
-              Popular Workout Routines
+              Popular Workout Plans
             </h2>
           </div>
           <div className="w-full h-fit flex-nowrap overflow-x-scroll overflow-y-hidden flex flex-row gap-2 justify-start items-center no-scrollbar">
-            <LargeCard
-              href="/plan/0"
-              imageAlt="Workout Image"
-              imageSrc="/images/fallback.webp"
-              title="Full Body Advanced"
-              subtitle="7 exercises"
-            />
-            <LargeCard
-              href="/plan/1"
-              imageAlt="Workout Image"
-              imageSrc="/images/fallback.webp"
-              title="Full Body Beginner"
-              subtitle="5 exercises"
-            />
-            <LargeCard
-              href="/plan/2"
-              imageAlt="Workout Image"
-              imageSrc="/images/fallback.webp"
-              title="Push Pull Legs"
-              subtitle="6 exercises"
-            />
-            <LargeCard
-              href="/plan/3"
-              imageAlt="Workout Image"
-              imageSrc="/images/fallback.webp"
-              title="Upper Lower Split"
-              subtitle="5 exercises"
-            />
-            <LargeCard
-              href="/plan/4"
-              imageAlt="Workout Image"
-              imageSrc="/images/fallback.webp"
-              title="Strength Training"
-              subtitle="6 exercises"
-            />
-            <LargeCard
-              href="/plan/5"
-              imageAlt="Workout Image"
-              imageSrc="/images/fallback.webp"
-              title="Core Focus"
-              subtitle="5 exercises"
-            />
+            {popularPlans && popularPlans.length > 0 ? (
+              popularPlans
+                .slice(0, 6)
+                .map((plan: Plan, index: number) => (
+                  <LargeCard
+                    key={index}
+                    href={`/plan/${plan.$id}`}
+                    imageAlt={plan.name}
+                    imageSrc={plan.imageUrl || "/images/fallback.webp"}
+                    title={plan.name}
+                    subtitle={`${plan.exerciseIds.length} exercises`}
+                  />
+                ))
+            ) : isLoadingPublicPlans ? (
+              <Repeat count={6}>
+                <LargeCard
+                  href=""
+                  imageAlt=""
+                  imageSrc=""
+                  title=""
+                  subtitle=""
+                  type="loading"
+                />
+              </Repeat>
+            ) : isErrorPublicPlans ? (
+              <div className="h-40 w-full bg-other-alert rounded-2xl p-4 flex flex-col justify-center items-center text-fg-primary text-center">
+                <span className="w-full">
+                  There was an error loading popular plans, please try again
+                  later.
+                </span>
+              </div>
+            ) : (
+              <div className="h-40 w-full bg-bg-secondary rounded-2xl p-4 flex flex-col justify-center items-center text-fg-primary text-center">
+                <span className="w-full">No popular plans available.</span>
+              </div>
+            )}
           </div>
         </div>
       </section>
-      <section
-        id="friends-section"
-        className="w-full h-fit flex flex-col gap-2"
-      >
-        <div className="w-full h-fit flex flex-row justify-between items-center">
-          <h2 className="text-xl font-semibold text-fg-primary">Friends</h2>
-        </div>
-        <div className="w-full h-fit flex-nowrap overflow-x-scroll overflow-y-hidden flex flex-row gap-2 justify-start items-center no-scrollbar">
-          <Link
-            href="/user/1"
-            className="w-18 h-24 flex-shrink-0 flex flex-col gap-1 justify-center items-center"
-          >
-            <div className="w-16 h-16 relative rounded-full overflow-hidden">
-              <Image
-                src="/images/fallback.webp"
-                alt="User Avatar"
-                className="rounded-full border-2 border-primary"
-                fill
-              />
-            </div>
-            <span className="text-fg-primary text-sm text-center">Alice</span>
-          </Link>
-          <Link
-            href="/user/2"
-            className="w-18 h-24 flex-shrink-0 flex flex-col gap-1 justify-center items-center"
-          >
-            <div className="w-16 h-16 relative rounded-full overflow-hidden">
-              <Image
-                src="/images/fallback.webp"
-                alt="User Avatar"
-                className="rounded-full"
-                fill
-              />
-            </div>
-            <span className="text-fg-primary text-sm text-center">Bob</span>
-          </Link>
-        </div>
-      </section>
+      {friends && friends.length > 0 && (
+        <section
+          id="friends-section"
+          className="w-full h-fit flex flex-col gap-2"
+        >
+          <div className="w-full h-fit flex flex-row justify-between items-center">
+            <h2 className="text-xl font-semibold text-fg-primary">Friends</h2>
+          </div>
+          <div className="w-full h-fit flex-nowrap overflow-x-scroll overflow-y-hidden flex flex-row gap-2 justify-start items-center no-scrollbar">
+            {friends.slice(0, 6).map((friend: Friend, index: number) => {
+              const details = friendsDetailsMap[friend.$id];
+              const activeWorkout = details?.activeWorkout;
+              const friendUser = details?.user || { name: "Unknown User" };
+              return (
+                <Link
+                  key={index}
+                  href={`/user/${friend.friendId}`}
+                  className="w-18 h-24 flex-shrink-0 flex flex-col gap-1 justify-center items-center"
+                >
+                  <div className="w-16 h-16 relative rounded-full overflow-hidden">
+                    <CustomImage
+                      src="/images/fallback.webp"
+                      alt="User Avatar"
+                      className={`rounded-full ${
+                        activeWorkout ? "border-2 border-primary" : ""
+                      }`}
+                    />
+                  </div>
+                  <span className="text-fg-primary text-sm text-center">
+                    {friendUser.name}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
       <section
         id="progress-section"
         className="w-full h-fit flex flex-col gap-2"

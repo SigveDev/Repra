@@ -2,8 +2,8 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { useDropzone, type FileError } from "react-dropzone";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
+import CustomImage from "./CustomImage";
 
 export type ImageDropzoneProps = {
   onChange?: (file: File | null) => void;
@@ -103,13 +103,9 @@ export default function ImageDropzone({
 
       {previewUrlProp ?? previewUrl ? (
         <div className="w-full h-full relative">
-          <Image
+          <CustomImage
             src={(previewUrlProp ?? previewUrl) as string}
             alt={file?.name ?? "preview"}
-            className="object-cover"
-            fill
-            unoptimized
-            priority
           />
         </div>
       ) : (

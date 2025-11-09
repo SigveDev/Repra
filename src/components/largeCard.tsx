@@ -1,8 +1,10 @@
+"use client";
+
 import Link from "next/link";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { forwardRef, AnchorHTMLAttributes, ReactNode, Ref } from "react";
+import { forwardRef, Ref } from "react";
 import { Skeleton } from "./skeleton";
+import CustomImage from "./CustomImage";
 
 type LargeCardProps = {
   href: string;
@@ -11,9 +13,8 @@ type LargeCardProps = {
   title: string;
   subtitle?: string;
   className?: string;
-  children?: ReactNode;
   type?: "default" | "loading";
-} & AnchorHTMLAttributes<HTMLAnchorElement>;
+};
 
 const LargeCard = forwardRef<
   HTMLAnchorElement | HTMLDivElement,
@@ -27,13 +28,11 @@ const LargeCard = forwardRef<
       title,
       subtitle,
       className,
-      children,
       type = "default",
       ...props
     },
     ref
   ) => {
-    // render a non-interactive div while loading, otherwise render the Link
     if (type === "loading") {
       return (
         <div
@@ -66,23 +65,14 @@ const LargeCard = forwardRef<
         ref={ref as unknown as Ref<HTMLAnchorElement>}
         {...props}
       >
-        <div className="w-full aspect-square relative rounded-xl">
-          <Image
-            loader={() => imageSrc}
-            src={imageSrc}
-            alt={imageAlt}
-            className="rounded-xl object-cover"
-            fill
-            priority
-            unoptimized
-          />
+        <div className="w-full aspect-square relative rounded-xl overflow-hidden">
+          <CustomImage src={imageSrc} alt={imageAlt} className="rounded-xl" />
         </div>
         <div className="w-full h-fit flex flex-col justify-center items-start text-sm">
           <span className="text-fg-primary">{title}</span>
           {subtitle && (
             <span className="text-fg-secondary text-xs">{subtitle}</span>
           )}
-          {children}
         </div>
       </Link>
     );

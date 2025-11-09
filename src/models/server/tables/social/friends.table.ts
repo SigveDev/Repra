@@ -7,12 +7,7 @@ export default async function createFriendsTable() {
     databaseId: db,
     tableId: friendsTable,
     name: friendsTable,
-    permissions: [
-      Permission.create("users"),
-      Permission.read("users"),
-      Permission.update("users"),
-      Permission.delete("users"),
-    ],
+    permissions: [Permission.create("users")],
     rowSecurity: true,
   });
   console.log(`Created table: ${friendsTable}`);

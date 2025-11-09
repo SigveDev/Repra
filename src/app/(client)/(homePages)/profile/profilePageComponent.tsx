@@ -12,10 +12,10 @@ import {
   UserAdd01StrokeStandard,
 } from "@hugeicons-pro/core-stroke-standard";
 import { HugeiconsIcon } from "@hugeicons/react";
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { memberStatusColors } from "@/assets/memberStatusColors";
+import CustomImage from "@/components/CustomImage";
 
 function ProfilePageComponent() {
   const { user, logout } = useAuthStore();
@@ -34,11 +34,10 @@ function ProfilePageComponent() {
       >
         <div className="w-full h-full rounded-xl border-2 border-[rgba(255,255,255,0.1)] flex flex-row justify-center items-center gap-4 p-4 bg-transparent">
           <div className="h-full aspect-square relative rounded-full">
-            <Image
+            <CustomImage
               src="/images/fallback.webp"
               alt="Profile Picture"
-              layout="fill"
-              className="object-cover rounded-full"
+              className="rounded-full"
             />
           </div>
           <div className="h-full grow flex flex-col justify-around items-start">

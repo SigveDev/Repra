@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Stopwatch from "./stopwatch";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -10,6 +9,7 @@ import {
 import { useEffect, useState } from "react";
 import { DateTimeStrokeRounded } from "@hugeicons-pro/core-stroke-rounded";
 import { motion, useMotionValue, animate, type PanInfo } from "framer-motion";
+import CustomImage from "./CustomImage";
 
 function Player() {
   const [open, setOpen] = useState(false);
@@ -113,11 +113,10 @@ function Player() {
           onClick={() => setOpen(true)}
         >
           <div className="h-full aspect-square relative rounded-sm">
-            <Image
+            <CustomImage
               src="/images/fallback.webp"
               alt="Workout Image"
               className="rounded-sm"
-              fill
             />
           </div>
           <div className="grow h-full flex flex-col justify-center items-start gap-1">
