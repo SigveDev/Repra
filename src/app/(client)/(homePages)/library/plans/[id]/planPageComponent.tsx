@@ -137,9 +137,6 @@ export default function PlanPageComponent({ id }: { id: string }) {
     }
   }, [selectedExercises, editedPlan]);
 
-  console.log("editedPlan:", editedPlan);
-  console.log("selectedExercises:", selectedExercises);
-
   return (
     <div
       className="w-full h-fit min-h-screen flex flex-col items-center justify-start p-4 pb-[var(--total-mobile-bottom-height)] gap-2"
