@@ -39,7 +39,11 @@ import {
   SquareLock01StrokeStandard,
 } from "@hugeicons-pro/core-stroke-standard";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useQuery } from "@tanstack/react-query";
+import {
+  useQuery,
+  useQueries,
+  type UseQueryResult,
+} from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -66,24 +70,60 @@ export default function PlanPageComponent({ id }: { id: string }) {
     refetch: refetchPlan,
   } = useQuery<Plan>({
     queryKey: ["plan", id],
-    queryFn: async () => {
-      const fetchedPlan = await GetPlanFromId(id);
-      setEditedPlan(fetchedPlan);
-
-      const exercises = await Promise.all(
-        fetchedPlan.exerciseIds.map(async (exerciseId) => {
-          try {
-            return await GetExerciseFromId(exerciseId);
-          } catch {
-            return null;
-          }
-        })
-      );
-      setSelectedExercises(exercises.filter(Boolean) as Exercise[]);
-
-      return fetchedPlan;
-    },
+    queryFn: async () => await GetPlanFromId(id),
   });
+
+  useEffect(() => {
+    if (plan) setEditedPlan(plan);
+  }, [plan]);
+
+  const exerciseQueries = useQueries({
+    queries: (plan?.exerciseIds || []).map((exerciseId: string) => ({
+      queryKey: ["exercise", exerciseId],
+      queryFn: async () => {
+        try {
+          return await GetExerciseFromId(exerciseId);
+        } catch {
+          return null;
+        }
+      },
+      enabled: !!plan,
+      retry: false,
+    })),
+  }) as UseQueryResult<Exercise | null, unknown>[];
+
+  const isLoadingExercises =
+    exerciseQueries.length > 0 && exerciseQueries.some((q) => q.isLoading);
+
+  const fetchedExercises = exerciseQueries
+    .map((q) => q.data)
+    .filter(Boolean) as Exercise[];
+
+  useEffect(() => {
+    if (!plan) {
+      setSelectedExercises([]);
+      return;
+    }
+
+    if (plan.exerciseIds.length === 0) {
+      setSelectedExercises([]);
+      return;
+    }
+
+    if (
+      !isLoadingExercises &&
+      fetchedExercises.length > 0 &&
+      selectedExercises.length === 0
+    ) {
+      setSelectedExercises(fetchedExercises);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    plan?.exerciseIds?.join(","),
+    isLoadingExercises,
+    fetchedExercises.length,
+  ]);
 
   const handleSavePlan = async () => {
     if (plan && editedPlan) {
@@ -591,9 +631,7 @@ export default function PlanPageComponent({ id }: { id: string }) {
                 </div>
               </div>
             ))
-          ) : selectedExercises.length === 0 &&
-            plan &&
-            plan.exerciseIds.length > 0 ? (
+          ) : isLoadingExercises && plan && plan.exerciseIds.length > 0 ? (
             <Repeat count={3}>
               <Skeleton className="w-full h-14 rounded-lg" />
             </Repeat>
